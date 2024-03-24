@@ -6,7 +6,7 @@
     </plugin-info>
 
     <!-- from our base plugin -->
-    <component-import key="myComponent" interface="com.simplifyqa.bamboo.plugins.api.MyPluginComponent"/>
+    <component-import key="sqapipelineexecutor" interface="com.simplifyqa.bamboo.plugins.SQAPipelineExecutor.api.MyPluginComponent"/>
 
     <!-- from the product container -->
     <component-import key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties" />
