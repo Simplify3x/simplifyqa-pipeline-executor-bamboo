@@ -6,16 +6,21 @@ import com.atlassian.bamboo.task.TaskException;
 import com.atlassian.bamboo.task.TaskResult;
 import com.atlassian.bamboo.task.TaskResultBuilder;
 import com.atlassian.bamboo.task.TaskType;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class Execute implements TaskType {
 
-  @Override
-  public TaskResult execute(final TaskContext taskContext)
+  @NotNull
+  @java.lang.Override
+  public TaskResult execute(@NotNull final TaskContext taskContext)
     throws TaskException {
     final BuildLogger buildLogger = taskContext.getBuildLogger();
 
-    buildLogger.addBuildLogEntry("Hello, World!");
+    final String say = taskContext.getConfigurationMap().get("say");
 
-    return TaskResultBuilder.newBuilder(taskContext).success().build();
+    buildLogger.addBuildLogEntry(say);
+
+    return TaskResultBuilder.create(taskContext).success().build();
   }
 }

@@ -1,29 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<atlassian-plugin key="${atlassian.plugin.key}" name="${project.name}" plugins-version="2"> 
-  <plugin-info> 
-    <description>${project.description}</description>  
-    <version>${project.version}</version>  
-    <vendor name="${project.organization.name}" url="${project.organization.url}"/>  
-    <param name="plugin-icon">images/pluginIcon.png</param>  
-    <param name="plugin-logo">images/pluginLogo.png</param> 
-  </plugin-info>  
-  <!-- add our i18n resource -->  
-  <resource type="i18n" name="i18n" location="simplifyqa-pipeline-executor"/>  
-  <!-- add our web resources -->  
-  <web-resource key="simplifyqa-pipeline-executor-resources" name="simplifyqa-pipeline-executor Web Resources"> 
-    <dependency>com.atlassian.auiplugin:ajs</dependency>  
-    <resource type="download" name="simplifyqa-pipeline-executor.css" location="/css/simplifyqa-pipeline-executor.css"/>  
-    <resource type="download" name="simplifyqa-pipeline-executor.js" location="/js/simplifyqa-pipeline-executor.js"/>  
-    <resource type="download" name="images/" location="/images"/>  
-    <context>simplifyqa-pipeline-executor</context> 
-  </web-resource>  
-  <taskType key="sqapipelineexecutor" name="SQAPipelineExecutor" class="com.simplifyqa.bamboo.plugins.SQAPipelineExecutor.Execute"> 
-    <description>A task that prints 'Hello, World!'</description> 
-  </taskType>  
-  <web-item name="Atlassian Developers Site" i18n-name-key="atlassian-developers-site.name" key="atlassian-developers-site" section="my-item-link/my-section" weight="1000"> 
-    <description key="atlassian-developers-site.description">The Atlassian Developers Site Plugin</description>  
-    <label key="atlassian-developers-site.label"></label>  
-    <link linkId="atlassian-developers-site-link">http://developer.atlassian.com/docs</link> 
-  </web-item>
+<atlassian-plugin key="${atlassian.plugin.key}" name="${project.name}" plugins-version="2">
+    <plugin-info>
+        <description>${project.description}</description>
+        <version>${project.version}</version>
+        <vendor name="${project.organization.name}" url="${project.organization.url}"/>
+        <param name="plugin-icon">images/pluginLogo.png</param>
+        <param name="plugin-logo">images/pluginLogo.png</param>
+    </plugin-info>
+
+    <!-- add our i18n resource -->
+    <resource type="i18n" name="i18n" location="simplifyqa-pipeline-executor"/>
+    <resource type="i18n" name="com.simplifyqa language" location="properties/plugin"/>
+
+    <!-- add our web resources -->
+    <web-resource key="simplifyqa-pipeline-executor-resources" name="simplifyqa-pipeline-executor Web Resources">
+        <dependency>com.atlassian.auiplugin:ajs</dependency>
+        <resource type="download" name="simplifyqa-pipeline-executor.css" location="/css/simplifyqa-pipeline-executor.css"/>
+        <resource type="download" name="simplifyqa-pipeline-executor.js" location="/js/simplifyqa-pipeline-executor.js"/>
+        <resource type="download" name="images/" location="/images"/>
+        <context>simplifyqa-pipeline-executor</context>
+    </web-resource>
+
+    <taskType key="Executor" name="SimplifyQA Pipeline Executor" class="com.simplifyqa.bamboo.plugins.SQAPipelineExecutor.Execute">
+        <category name="builder"/>
+        <description>A task that performs remote executions on SimplifyQA</description>
+        <configuration class="com.simplifyqa.bamboo.plugins.SQAPipelineExecutor.impl.ExecutionTaskConfigurator"/>
+        <resource type="freemarker" name="edit" location="templates/execution-config.ftl"/>
+        <resource type="download" name="icon" location="images/pluginLogo.png"/>
+    </taskType>
+
+    <web-item name="Atlassian Developers Site" i18n-name-key="atlassian-developers-site.name" key="atlassian-developers-site" section="my-item-link/my-section" weight="1000">
+        <description key="atlassian-developers-site.description">The Atlassian Developers Site Plugin</description>
+        <label key="atlassian-developers-site.label"></label>
+        <link linkId="atlassian-developers-site-link">http://developer.atlassian.com/docs</link>
+    </web-item>
 </atlassian-plugin>
