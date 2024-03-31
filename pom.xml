@@ -1,18 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    
     <modelVersion>4.0.0</modelVersion>
+    
     <groupId>com.simplifyqa.bamboo.plugins</groupId>
     <artifactId>simplifyqa-pipeline-executor</artifactId>
     <version>1.0.0-SNAPSHOT</version>
+    
     <organization>
         <name>Simplify3x</name>
         <url>https://www.simplify3x.com/</url>
     </organization>
+    
     <name>simplifyqa-pipeline-executor</name>
     <description>This is the com.simplifyqa.bamboo.plugins:simplifyqa-pipeline-executor plugin for Atlassian Bamboo.</description>
     <packaging>atlassian-plugin</packaging>
+    
     <properties>
         <bamboo.version>6.8.0</bamboo.version>
         <bamboo.data.version>6.8.0</bamboo.data.version>
@@ -26,6 +32,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
+    
     <dependencies>
         <dependency>
             <groupId>com.atlassian.bamboo</groupId>
@@ -76,6 +83,7 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    
     <build>
         <plugins>
             <plugin>
@@ -93,9 +101,10 @@
                     <instructions>
                         <Atlassian-Plugin-Key>${atlassian.plugin.key}</Atlassian-Plugin-Key>
                         <!-- Add package to export here -->
-                        <Export-Package>com.simplifyqa.bamboo.plugins.SQAPipelineExecutor.api,</Export-Package>
+                        <Export-Package>com.simplifyqa.bamboo.plugins.PipelineExecutor.api,</Export-Package>
                         <!-- Add package import here -->
-                        <Import-Package>org.springframework.osgi.*;resolution:="optional", org.eclipse.gemini.blueprint.*;resolution:="optional", *</Import-Package>
+                        <Import-Package>org.springframework.osgi.*;resolution:="optional",
+                            org.eclipse.gemini.blueprint.*;resolution:="optional", *</Import-Package>
                         <!-- Ensure plugin is spring powered -->
                         <Spring-Context>*</Spring-Context>
                     </instructions>

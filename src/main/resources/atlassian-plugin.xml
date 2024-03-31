@@ -5,13 +5,13 @@
         <description>${project.description}</description>
         <version>${project.version}</version>
         <vendor name="${project.organization.name}" url="${project.organization.url}"/>
-        <param name="plugin-icon">images/pluginLogo.png</param>
-        <param name="plugin-logo">images/pluginLogo.png</param>
+        <param name="plugin-icon">images/icon.png</param>
+        <param name="plugin-logo">images/icon.png</param>
     </plugin-info>
 
     <!-- add our i18n resource -->
     <resource type="i18n" name="i18n" location="simplifyqa-pipeline-executor"/>
-    <resource type="i18n" name="com.simplifyqa language" location="properties/plugin"/>
+    <resource type="i18n" name="plugin" location="properties/plugin"/>
 
     <!-- add our web resources -->
     <web-resource key="simplifyqa-pipeline-executor-resources" name="simplifyqa-pipeline-executor Web Resources">
@@ -22,12 +22,13 @@
         <context>simplifyqa-pipeline-executor</context>
     </web-resource>
 
-    <taskType key="Executor" name="SimplifyQA Pipeline Executor" class="com.simplifyqa.bamboo.plugins.SQAPipelineExecutor.Execute">
+    <taskType key="Executor" name="SimplifyQA Pipeline Executor" class="com.simplifyqa.bamboo.plugins.PipelineExecutor.tasks.Execute">
         <category name="builder"/>
         <description>A task that performs remote executions on SimplifyQA</description>
-        <configuration class="com.simplifyqa.bamboo.plugins.SQAPipelineExecutor.impl.ExecutionTaskConfigurator"/>
+        <configuration class="com.simplifyqa.bamboo.plugins.PipelineExecutor.ui.ExecutionTaskConfigurator"/>
         <resource type="freemarker" name="edit" location="templates/execution-config.ftl"/>
-        <resource type="download" name="icon" location="images/pluginLogo.png"/>
+        <resource type="download" name="icon" location="images/icon.png"/>
+        <help link="com.simplifyqa.help.link" title="com.simplifyqa.help.title" />
     </taskType>
 
     <web-item name="Atlassian Developers Site" i18n-name-key="atlassian-developers-site.name" key="atlassian-developers-site" section="my-item-link/my-section" weight="1000">

@@ -1,9 +1,9 @@
-package com.simplifyqa.bamboo.plugins.SQAPipelineExecutor.impl;
+package com.simplifyqa.bamboo.plugins.PipelineExecutor.impl;
 
 import com.atlassian.plugin.spring.scanner.annotation.export.ExportAsService;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.ApplicationProperties;
-import com.simplifyqa.bamboo.plugins.SQAPipelineExecutor.api.Execution;
+import com.simplifyqa.bamboo.plugins.PipelineExecutor.api.Execution;
 
 import javax.inject.Inject;
 import javax.inject.Named;

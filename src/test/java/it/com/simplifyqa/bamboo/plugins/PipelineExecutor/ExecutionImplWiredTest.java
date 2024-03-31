@@ -1,8 +1,8 @@
-package it.com.simplifyqa.bamboo.plugins.SQAPipelineExecutor;
+package it.com.simplifyqa.bamboo.plugins.PipelineExecutor;
 
 import com.atlassian.plugins.osgi.test.AtlassianPluginsTestRunner;
 import com.atlassian.sal.api.ApplicationProperties;
-import com.simplifyqa.bamboo.plugins.SQAPipelineExecutor.impl.ExecutionImpl;
+import com.simplifyqa.bamboo.plugins.PipelineExecutor.impl.ExecutionImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
