@@ -8,12 +8,11 @@ import java.text.DecimalFormat;
 import jenkins.model.RunAction2;
 import org.json.simple.JSONArray;
 
-public class ExecutionImpl implements RunAction2 {
+public class ExecutionImpl {
 
     private static final String icon_path = "document.png";
     private transient Run run;
 
-    @SuppressWarnings("lgtm[jenkins/plaintext-storage]")
     private String exec_token;
 
     private String app_url = "https://simplifyqa.app";
@@ -82,34 +81,34 @@ public class ExecutionImpl implements RunAction2 {
     }
 
     // Required Methods
-    @Override
-    public String getIconFileName() {
-        return ExecutionImpl.icon_path;
-    }
+    // @Override
+    // public String getIconFileName() {
+    //     return ExecutionImpl.icon_path;
+    // }
 
-    @Override
-    public String getDisplayName() {
-        return "SQA Pipeline Executor Logs";
-    }
+    // @Override
+    // public String getDisplayName() {
+    //     return "SQA Pipeline Executor Logs";
+    // }
 
-    @Override
-    public String getUrlName() {
-        return "SQA-Pipeline-Executor-logs";
-    }
+    // @Override
+    // public String getUrlName() {
+    //     return "SQA-Pipeline-Executor-logs";
+    // }
 
-    @Override
-    public void onAttached(Run<?, ?> run) {
-        this.run = run;
-    }
+    // @Override
+    // public void onAttached(Run<?, ?> run) {
+    //     this.run = run;
+    // }
 
-    @Override
-    public void onLoad(Run<?, ?> run) {
-        this.run = run;
-    }
+    // @Override
+    // public void onLoad(Run<?, ?> run) {
+    //     this.run = run;
+    // }
 
-    public Run getRun() {
-        return run;
-    }
+    // public Run getRun() {
+    //     return run;
+    // }
 
     // Getters (pre-connection)
     public String getLogs() {

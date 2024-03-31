@@ -27,11 +27,7 @@ import org.kohsuke.stapler.interceptor.RequirePOST;
 
 public class SQAPipelineBuilder extends Builder implements SimpleBuildStep {
     @SuppressWarnings("lgtm[jenkins/plaintext-storage]")
-    private String exec_token;
-
-    private String app_url;
-    private double threshold;
-    private boolean verbose;
+    
 
     // Constructor
     @DataBoundConstructor

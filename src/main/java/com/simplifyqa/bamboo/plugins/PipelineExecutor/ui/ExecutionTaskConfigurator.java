@@ -18,10 +18,10 @@ public class ExecutionTaskConfigurator
   extends AbstractTaskConfigurator
   implements DeploymentPipeline {
 
-  protected static final String TOKEN = "TOKEN";
-  protected static final String APP_URL = "APP_URL";
-  protected static final String THRESHOLD = "THRESHOLD";
-  protected static final String VERBOSE = "VERBOSE";
+  protected static final String exec_token = "TOKEN";
+  protected static final String app_url = "APP_URL";
+  protected static final double threshold = "THRESHOLD";
+  protected static final boolean verbose = "VERBOSE";
 
   @Override
   public void populateContextForCreate(
@@ -80,5 +80,72 @@ public class ExecutionTaskConfigurator
       .add(TOKEN, APP_URL, THRESHOLD, VERBOSE)
       .addAll(getRequiredFiles())
       .build();
+  }
+
+  // Constructor
+  public ExecutionTaskConfigurator(
+    String exec_token,
+    String app_url,
+    double threshold,
+    boolean verbose
+  ) {
+    if ((threshold < 1.00) || (threshold > 100.00)) threshold = 100.00;
+
+    if (
+      !(
+        app_url.startsWith("http://") ^
+        app_url.startsWith("https://") ^
+        app_url.startsWith("localhost:")
+      )
+    ) app_url = "https://simplifyqa.app";
+
+    this.exec_token = exec_token;
+    this.app_url = app_url;
+    this.threshold = threshold;
+    this.verbose = verbose;
+  }
+
+  // Getters
+  public String getExec_token() {
+    return this.exec_token;
+  }
+
+  public String getApp_url() {
+    return this.app_url;
+  }
+
+  public double getThreshold() {
+    return this.threshold;
+  }
+
+  public boolean getVerbose() {
+    return this.verbose;
+  }
+
+  // Setters
+  protected void setExec_token(String exec_token) {
+    this.exec_token = exec_token;
+  }
+
+  protected void setApp_url(String app_url) {
+    if (
+      !(
+        app_url.startsWith("http://") ^
+        app_url.startsWith("https://") ^
+        app_url.startsWith("localhost:")
+      )
+    ) app_url = "https://simplifyqa.app";
+
+    this.app_url = app_url;
+  }
+
+  protected void setThreshold(double threshold) {
+    if ((threshold < 1.00) || (threshold > 100.00)) threshold = 100.00;
+
+    this.threshold = threshold;
+  }
+
+  public void setVerbose(boolean verbose) {
+    this.verbose = verbose;
   }
 }
