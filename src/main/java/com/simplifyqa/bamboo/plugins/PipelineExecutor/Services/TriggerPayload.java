@@ -1,28 +1,28 @@
-package io.jenkins.plugins.simplifyqa.Services;
+package com.simplifyqa.bamboo.plugins.PipelineExecutor.Services;
 
 public class TriggerPayload {
-    @SuppressWarnings("lgtm[jenkins/plaintext-storage]")
-    String token;
 
-    // Constructor
-    TriggerPayload(String token) {
-        this.token = token;
-    }
+  String token;
 
-    // Getters
-    public String getPayload() {
-        StringBuilder sb = new StringBuilder("");
-        sb.append("{\"token\":\"" + this.token + "\"}");
+  // Constructor
+  TriggerPayload(String token) {
+    this.token = token;
+  }
 
-        return sb.toString();
-    }
+  // Getters
+  public String getPayload() {
+    StringBuilder sb = new StringBuilder("");
+    sb.append("{\"token\":\"" + this.token + "\"}");
 
-    public String getToken() {
-        return this.token;
-    }
+    return sb.toString();
+  }
 
-    // Setters
-    protected void setToken(String token) {
-        this.token = token;
-    }
+  public String getToken() {
+    return this.token;
+  }
+
+  // Setters
+  protected void setToken(String token) {
+    this.token = token;
+  }
 }

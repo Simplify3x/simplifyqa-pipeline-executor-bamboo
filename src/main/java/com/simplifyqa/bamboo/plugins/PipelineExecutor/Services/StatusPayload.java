@@ -1,4 +1,4 @@
-package io.jenkins.plugins.simplifyqa.Services;
+package com.simplifyqa.bamboo.plugins.PipelineExecutor.Services;
 
 public class StatusPayload {
     long executionId;

@@ -3,22 +3,49 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    
+
     <modelVersion>4.0.0</modelVersion>
-    
+
     <groupId>com.simplifyqa.bamboo.plugins</groupId>
     <artifactId>simplifyqa-pipeline-executor</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    
+
     <organization>
         <name>Simplify3x</name>
         <url>https://www.simplify3x.com/</url>
     </organization>
-    
+
+    <licenses>
+        <license>
+            <name>apache-2-0</name>
+            <url>https://opensource.org/license/apache-2-0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <scm>
+        <connection>scm:git:https://github.com/Simplify3x/simplifyqa-pipeline-executor-bamboo</connection>
+        <developerConnection>scm:git:https://github.com/Simplify3x/simplifyqa-pipeline-executor-bamboo</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+    <developers>
+        <developer>
+            <name>Simplify3x</name>
+            <email>github@simplify3x.com</email>
+            <organization>Simplify3x</organization>
+        </developer>
+        <developer>
+            <name>Bernard Birendra Das</name>
+            <email>bernard.b@simplify3x.com</email>
+            <organization>Simplify3x</organization>
+        </developer>
+    </developers>
+
+    <issueManagement />
+
     <name>simplifyqa-pipeline-executor</name>
     <description>This is the com.simplifyqa.bamboo.plugins:simplifyqa-pipeline-executor plugin for Atlassian Bamboo.</description>
     <packaging>atlassian-plugin</packaging>
-    
+
     <properties>
         <bamboo.version>6.8.0</bamboo.version>
         <bamboo.data.version>6.8.0</bamboo.data.version>
@@ -26,13 +53,13 @@
         <plugin.testrunner.version>2.0.2</plugin.testrunner.version>
         <atlassian.spring.scanner.version>2.1.7</atlassian.spring.scanner.version>
         <!-- This property ensures consistency between the key in atlassian-plugin.xml and the OSGi
-        bundle's key. -->
+        bundles key. -->
         <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
-    
+
     <dependencies>
         <dependency>
             <groupId>com.atlassian.bamboo</groupId>
@@ -82,9 +109,69 @@
             <version>1.8.5</version>
             <scope>test</scope>
         </dependency>
+        <!--Additional
+    Dependencies-->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.16.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.clerezza.ext</groupId>
+            <artifactId>org.json.simple</artifactId>
+            <version>0.4</version>
+        </dependency>
     </dependencies>
-    
+
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>com.github.spotbugs</groupId>
+                    <artifactId>spotbugs-maven-plugin</artifactId>
+                    <version>4.3.0</version>
+                    <configuration>
+                        <classFilesDirectory>target/classes</classFilesDirectory>
+                        <includeFilterFile>spotbugs-filter.xml</includeFilterFile>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <phase>test</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <version>3.3</version>
+                    <configuration>
+                        <source>${maven.compiler.source}</source>
+                        <target>${maven.compiler.target}</target>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>2.10.4</version>
+                    <executions>
+                        <execution>
+                            <id>attach-javadocs</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                            <configuration>
+                                <additionalparam>-Xdoclint:none</additionalparam>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
         <plugins>
             <plugin>
                 <groupId>com.atlassian.maven.plugins</groupId>
@@ -123,9 +210,56 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <scannedDependencies>
+                        <dependency>
+                            <groupId>com.atlassian.plugin</groupId>
+                            <artifactId>atlassian-spring-scanner-external-jar</artifactId>
+                        </dependency>
+                    </scannedDependencies>
                     <verbose>false</verbose>
                 </configuration>
             </plugin>
+            <!-- <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <executions>
+                    <execution>
+                        <id>unpack</id>
+                        <phase>process-test-classes</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <artifactId>integrations-sdk</artifactId>
+                                    <groupId>com.hpe.adm.octane.ciplugins</groupId>
+                                    <version>${integrations.sdk.version}</version>
+                                    <type>test-jar</type>
+                                    <outputDirectory>${project.build.directory}/test-classes</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin> -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <excludePackageNames>*.impl</excludePackageNames>
+                </configuration>
+            </plugin>
+            <!-- <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>2.16.2</version>
+                <configuration>
+                    <excludes>
+                        <exclude>org.apache.commons:commons-collections4</exclude>
+                    </excludes>
+                </configuration>
+            </plugin> -->
         </plugins>
     </build>
 
@@ -133,7 +267,32 @@
         <repository>
             <id>atlassian-public</id>
             <url>https://maven.atlassian.com/repository/public</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+                <checksumPolicy>warn</checksumPolicy>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
+            </releases>
         </repository>
     </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>atlassian-public</id>
+            <url>https://maven.atlassian.com/repository/public</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+                <checksumPolicy>warn</checksumPolicy>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+                <checksumPolicy>warn</checksumPolicy>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
 
 </project>

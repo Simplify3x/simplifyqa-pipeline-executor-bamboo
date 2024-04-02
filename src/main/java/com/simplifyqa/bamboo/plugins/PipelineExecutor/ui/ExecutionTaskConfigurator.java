@@ -1,63 +1,40 @@
 package com.simplifyqa.bamboo.plugins.PipelineExecutor.ui;
 
 import com.atlassian.bamboo.collections.ActionParametersMap;
-import com.atlassian.bamboo.security.EncryptionException;
-import com.atlassian.bamboo.security.EncryptionService;
 import com.atlassian.bamboo.task.AbstractTaskConfigurator;
 import com.atlassian.bamboo.task.TaskDefinition;
 import com.atlassian.bamboo.utils.error.ErrorCollection;
-import com.atlassian.bamboo.utils.i18n.I18nBean;
-import com.google.common.collect.ImmutableList;
-import java.util.List;
+import com.atlassian.extras.common.log.Logger;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
+import com.atlassian.sal.api.message.I18nResolver;
+import com.simplifyqa.bamboo.plugins.PipelineExecutor.ExecutionConstants;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class ExecutionTaskConfigurator
-  extends AbstractTaskConfigurator
-  implements DeploymentPipeline {
+public class ExecutionTaskConfigurator extends AbstractTaskConfigurator {
 
-  protected static final String exec_token = "TOKEN";
-  protected static final String app_url = "APP_URL";
-  protected static final double threshold = "THRESHOLD";
-  protected static final boolean verbose = "VERBOSE";
+  private I18nResolver i18nResolver;
+  private final Logger.Log log = Logger.getInstance(this.getClass());
 
-  @Override
-  public void populateContextForCreate(
-    @NotNull final Map<String, Object> context
+  private final String EXEC_TOKEN =
+    this.getLabel(ExecutionConstants.EXEC_TOKEN_FIELD);
+  private final String APP_URL =
+    this.getLabel(ExecutionConstants.APP_URL_FIELD);
+  private final String THRESHOLD =
+    this.getLabel(ExecutionConstants.THRESHOLD_FIELD);
+  private final String VERBOSE =
+    this.getLabel(ExecutionConstants.VERBOSE_FIELD);
+
+  public void CreateDeploymentConfigurator(
+    @ComponentImport I18nResolver i18nResolver
   ) {
-    super.populateContextForCreate(context);
+    this.i18nResolver = i18nResolver;
   }
 
   @Override
-  public void populateContextForEdit(
-    @NotNull final Map<String, Object> context,
-    @NotNull final TaskDefinition taskDefinition
-  ) {
-    super.populateContextForEdit(context, taskDefinition);
-    taskConfiguratorHelper.populateContextWithConfiguration(
-      context,
-      taskDefinition,
-      getFieldsToCopy()
-    );
-  }
-
-  @Override
-  public void populateContextForView(
-    @NotNull final Map<String, Object> context,
-    @NotNull final TaskDefinition taskDefinition
-  ) {
-    super.populateContextForView(context, taskDefinition);
-    taskConfiguratorHelper.populateContextWithConfiguration(
-      context,
-      taskDefinition,
-      getFieldsToCopy()
-    );
-  }
-
   @NotNull
-  @Override
   public Map<String, String> generateTaskConfigMap(
     @NotNull final ActionParametersMap params,
     @Nullable final TaskDefinition previousTaskDefinition
@@ -66,86 +43,119 @@ public class ExecutionTaskConfigurator
       params,
       previousTaskDefinition
     );
-    taskConfiguratorHelper.populateTaskConfigMapWithActionParameters(
-      config,
-      params,
-      getFieldsToCopy()
-    );
+    config.put(this.EXEC_TOKEN, params.getString(this.EXEC_TOKEN));
+    config.put(this.APP_URL, params.getString(this.APP_URL));
+    config.put(this.THRESHOLD, params.getString(this.THRESHOLD));
+    config.put(this.VERBOSE, params.getString(this.VERBOSE));
+
     return config;
   }
 
-  protected List<String> getFieldsToCopy() {
-    return ImmutableList
-      .<String>builder()
-      .add(TOKEN, APP_URL, THRESHOLD, VERBOSE)
-      .addAll(getRequiredFiles())
-      .build();
-  }
-
-  // Constructor
-  public ExecutionTaskConfigurator(
-    String exec_token,
-    String app_url,
-    double threshold,
-    boolean verbose
+  @Override
+  public void populateContextForCreate(
+    @NotNull final Map<String, Object> context
   ) {
-    if ((threshold < 1.00) || (threshold > 100.00)) threshold = 100.00;
+    super.populateContextForCreate(context);
 
-    if (
-      !(
-        app_url.startsWith("http://") ^
-        app_url.startsWith("https://") ^
-        app_url.startsWith("localhost:")
-      )
-    ) app_url = "https://simplifyqa.app";
-
-    this.exec_token = exec_token;
-    this.app_url = app_url;
-    this.threshold = threshold;
-    this.verbose = verbose;
+    context.put(ExecutionTaskConfigurator.TOKEN, "");
+    context.put(this.APP_URL, "https://simplifyqa.app");
+    context.put(this.THRESHOLD, 100.00);
+    context.put(this.VERBOSE, true);
   }
 
-  // Getters
-  public String getExec_token() {
-    return this.exec_token;
+  @Override
+  public void populateContextForEdit(
+    @NotNull final Map<String, Object> context,
+    @NotNull final TaskDefinition taskDefinition
+  ) {
+    super.populateContextForEdit(context, taskDefinition);
+
+    context.put(
+      this.EXEC_TOKEN,
+      taskDefinition.getConfiguration().get(this.EXEC_TOKEN)
+    );
+    context.put(
+      this.APP_URL,
+      taskDefinition.getConfiguration().get(this.APP_URL)
+    );
+    context.put(
+      this.THRESHOLD,
+      taskDefinition.getConfiguration().get(this.THRESHOLD)
+    );
+    context.put(
+      this.VERBOSE,
+      taskDefinition.getConfiguration().get(this.VERBOSE)
+    );
   }
 
-  public String getApp_url() {
-    return this.app_url;
+  @Override
+  public void validate(
+    @NotNull final ActionParametersMap params,
+    @NotNull final ErrorCollection errorCollection
+  ) {
+    super.validate(params, errorCollection);
+
+    this.validateToken(params, errorCollection);
+    this.validateAppUrl(params, errorCollection);
+    this.validateThreshold(params, errorCollection);
+    this.validateVerbose(params, errorCollection);
   }
 
-  public double getThreshold() {
-    return this.threshold;
+  private boolean validateToken(
+    final ActionParametersMap params,
+    final ErrorCollection errorCollection
+  ) {
+    return true;
   }
 
-  public boolean getVerbose() {
-    return this.verbose;
+  private boolean validateAppUrl(
+    final ActionParametersMap params,
+    final ErrorCollection errorCollection
+  ) {
+    try {
+      String toValidate = params.getString(this.APP_URL);
+
+      if (StringUtils.isBlank(toValidate)) return false; else if (
+        !(
+          toValidate.startsWith("http://") ^
+          toValidate.startsWith("https://") ^
+          toValidate.startsWith("localhost:")
+        )
+      ) {
+        if (true) return true; // TODO: validate Connection by sending GET Request
+        else return false;
+      } else return false;
+    } catch (RuntimeException e) {
+      log.error(
+        String.format(
+          "Unexpected results trying to validate ApiKey: Reason '%s'",
+          e.getMessage()
+        )
+      );
+
+      errorCollection.addError(
+        APP_URL,
+        this.getLabel(ExecutionConstants.)
+      );
+      return false;
+    }
   }
 
-  // Setters
-  protected void setExec_token(String exec_token) {
-    this.exec_token = exec_token;
+  private boolean validateThreshold(
+    final ActionParametersMap params,
+    final ErrorCollection errorCollection
+  ) {
+    return true;
   }
 
-  protected void setApp_url(String app_url) {
-    if (
-      !(
-        app_url.startsWith("http://") ^
-        app_url.startsWith("https://") ^
-        app_url.startsWith("localhost:")
-      )
-    ) app_url = "https://simplifyqa.app";
-
-    this.app_url = app_url;
+  private boolean validateVerbose(
+    final ActionParametersMap params,
+    final ErrorCollection errorCollection
+  ) {
+    return true;
   }
 
-  protected void setThreshold(double threshold) {
-    if ((threshold < 1.00) || (threshold > 100.00)) threshold = 100.00;
-
-    this.threshold = threshold;
-  }
-
-  public void setVerbose(boolean verbose) {
-    this.verbose = verbose;
+  private String getLabel(String key) {
+    return i18nResolver.getText(key);
   }
 }

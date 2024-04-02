@@ -1,4 +1,4 @@
-package io.jenkins.plugins.simplifyqa;
+package com.simplifyqa.bamboo.plugins.PipelineExecutor;
 
 import hudson.EnvVars;
 import hudson.Extension;
@@ -26,7 +26,7 @@ import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.interceptor.RequirePOST;
 
 public class SQAPipelineBuilder extends Builder implements SimpleBuildStep {
-    @SuppressWarnings("lgtm[jenkins/plaintext-storage]")
+    
     
 
     // Constructor

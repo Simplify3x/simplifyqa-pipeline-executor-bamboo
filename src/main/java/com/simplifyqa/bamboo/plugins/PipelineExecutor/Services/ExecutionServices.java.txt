@@ -1,4 +1,4 @@
-package io.jenkins.plugins.simplifyqa.Services;
+package com.simplifyqa.bamboo.plugins.PipelineExecutor.Services;
 
 import io.jenkins.plugins.simplifyqa.ExecutionImpl;
 import java.io.IOException;
@@ -6,16 +6,17 @@ import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
