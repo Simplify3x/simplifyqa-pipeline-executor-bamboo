@@ -57,7 +57,7 @@ public class ExecutionTaskConfigurator extends AbstractTaskConfigurator {
   ) {
     super.populateContextForCreate(context);
 
-    context.put(ExecutionTaskConfigurator.TOKEN, "");
+    context.put(this.EXEC_TOKEN, "");
     context.put(this.APP_URL, "https://simplifyqa.app");
     context.put(this.THRESHOLD, 100.00);
     context.put(this.VERBOSE, true);
@@ -95,10 +95,10 @@ public class ExecutionTaskConfigurator extends AbstractTaskConfigurator {
   ) {
     super.validate(params, errorCollection);
 
-    this.validateToken(params, errorCollection);
-    this.validateAppUrl(params, errorCollection);
-    this.validateThreshold(params, errorCollection);
-    this.validateVerbose(params, errorCollection);
+    // this.validateToken(params, errorCollection);
+    // this.validateAppUrl(params, errorCollection);
+    // this.validateThreshold(params, errorCollection);
+    // this.validateVerbose(params, errorCollection);
   }
 
   private boolean validateToken(
@@ -123,8 +123,12 @@ public class ExecutionTaskConfigurator extends AbstractTaskConfigurator {
         )
       ) {
         if (true) return true; // TODO: validate Connection by sending GET Request
-        else return false;
-      } else return false;
+        else {
+          return false;
+        }
+      } else {
+        return false;
+      }
     } catch (RuntimeException e) {
       log.error(
         String.format(
@@ -133,10 +137,10 @@ public class ExecutionTaskConfigurator extends AbstractTaskConfigurator {
         )
       );
 
-      errorCollection.addError(
-        APP_URL,
-        this.getLabel(ExecutionConstants.)
-      );
+      // errorCollection.addError(
+      //   APP_URL,
+
+      // );
       return false;
     }
   }
