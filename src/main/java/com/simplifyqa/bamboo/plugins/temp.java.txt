@@ -1,0 +1,29 @@
+package com.simplifyqa.bamboo.plugins;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Properties;
+
+public class temp {
+
+    public static Properties readPropertiesFile(String filePath) {
+        Properties properties = new Properties();
+        try (FileInputStream fis = new FileInputStream(filePath)) {
+            properties.load(fis);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return properties;
+    }
+
+    public static void main(String[] args) {
+
+        Properties prop = temp.readPropertiesFile("src/main/resources/properties/plugin.properties");
+        // prop.forEach((key, value) -> System.out.println(key + " : " + value));
+        System.out.println(prop.getProperty("com.simplifyqa.fields.token.nameKey"));
+    }
+}

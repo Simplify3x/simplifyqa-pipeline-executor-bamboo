@@ -1,11 +1,8 @@
-package com.simplifyqa.bamboo.plugins.PipelineExecutor;
+package com.simplifyqa.bamboo.plugins.impl;
 
-import com.simplifyqa.bamboo.plugins.PipelineExecutor.Services.ExecutionServices;
-import hudson.model.Run;
-import hudson.model.TaskListener;
+import com.atlassian.bamboo.build.logger.BuildLogger;
 import java.io.IOException;
 import java.text.DecimalFormat;
-import jenkins.model.RunAction2;
 import org.json.simple.JSONArray;
 
 public class ExecutionImpl {
@@ -48,16 +45,20 @@ public class ExecutionImpl {
   private StringBuilder logs;
   private String toPrint;
 
+  BuildLogger logger;
+
   public ExecutionImpl(
     String exec_token,
     String app_url,
     double threshold,
-    boolean verbose
+    boolean verbose,
+    BuildLogger logger
   ) throws IOException {
     this.exec_token = exec_token;
     this.app_url = app_url;
     this.threshold = threshold;
     this.verbose = verbose;
+    this.logger = logger;
 
     this.build_api = app_url + this.build_api;
     this.status_api = app_url + this.status_api;
@@ -66,56 +67,37 @@ public class ExecutionImpl {
 
     // this.logs = new StringBuilder(ExecutionServices.getBanner());
     this.logs = new StringBuilder();
+
     this.toPrint =
-      ExecutionServices.getTimestamp() +
+      ExecutionServicesImpl.getTimestamp() +
       "**************************************START OF LOGS**************************************\n";
     this.toPrint +=
-      ExecutionServices.getTimestamp() + "The Set Parameters are:";
+      ExecutionServicesImpl.getTimestamp() + "The Set Parameters are:";
+
+    String asterisks = "";
+    for (int i = 0; i < 70; i++) asterisks += "*";
+
     this.toPrint +=
-      ExecutionServices.getTimestamp() +
+      ExecutionServicesImpl.getTimestamp() +
       "Execution Token: " +
-      "*".repeat(70) +
+      asterisks +
       this.exec_token.substring(71, this.exec_token.length() - 1);
+
     this.toPrint +=
-      ExecutionServices.getTimestamp() + "App Url: " + this.app_url;
+      ExecutionServicesImpl.getTimestamp() + "App Url: " + this.app_url;
+
     this.toPrint +=
-      ExecutionServices.getTimestamp() + "Threshold: " + this.threshold + "%";
+      ExecutionServicesImpl.getTimestamp() +
+      "Threshold: " +
+      this.threshold +
+      "%";
+
     this.toPrint +=
-      ExecutionServices.getTimestamp() + "Verbose: " + this.verbose;
+      ExecutionServicesImpl.getTimestamp() + "Verbose: " + this.verbose;
 
     this.logs.append(toPrint);
-    this.listener.getLogger().println(toPrint);
+    this.logger.addBuildLogEntry(toPrint);
   }
-
-  // Required Methods
-  // @Override
-  // public String getIconFileName() {
-  //     return ExecutionImpl.icon_path;
-  // }
-
-  // @Override
-  // public String getDisplayName() {
-  //     return "SQA Pipeline Executor Logs";
-  // }
-
-  // @Override
-  // public String getUrlName() {
-  //     return "SQA-Pipeline-Executor-logs";
-  // }
-
-  // @Override
-  // public void onAttached(Run<?, ?> run) {
-  //     this.run = run;
-  // }
-
-  // @Override
-  // public void onLoad(Run<?, ?> run) {
-  //     this.run = run;
-  // }
-
-  // public Run getRun() {
-  //     return run;
-  // }
 
   // Getters (pre-connection)
   public String getLogs() {
@@ -138,8 +120,8 @@ public class ExecutionImpl {
     return this.verbose;
   }
 
-  public TaskListener getListener() {
-    return this.listener;
+  public BuildLogger getBuildLogger() {
+    return this.logger;
   }
 
   // Getters (post-connection)
@@ -265,27 +247,17 @@ public class ExecutionImpl {
   }
 
   public void setFailPercent() {
+    double failPercentage = (double) this.tcs_failed / this.total_tcs * 100.0;
     this.fail_percent =
-      Double.parseDouble(
-        new DecimalFormat("#." + "0".repeat(2))
-          .format(
-            (Double.valueOf(this.tcs_failed) / Double.valueOf(this.total_tcs)) *
-            100.00
-          )
-      );
+      Double.parseDouble(String.format("%.2f", failPercentage));
   }
 
   public void setExecPercent() {
+    double executedPercentage = (double) this.executed_tcs /
+    this.total_tcs *
+    100.0;
     this.exec_percent =
-      Double.parseDouble(
-        new DecimalFormat("#." + "0".repeat(2))
-          .format(
-            (
-              Double.valueOf(this.executed_tcs) / Double.valueOf(this.total_tcs)
-            ) *
-            100.00
-          )
-      );
+      Double.parseDouble(String.format("%.2f", executedPercentage));
   }
 
   public void setTotalTcs(int total_tcs) {

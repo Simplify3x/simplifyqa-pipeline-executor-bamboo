@@ -1,4 +1,4 @@
-package com.simplifyqa.bamboo.plugins.PipelineExecutor;
+package com.simplifyqa.bamboo.plugins;
 
 import com.google.common.collect.ImmutableSet;
 import java.io.IOException;
@@ -31,7 +31,9 @@ public class ExecutionConstants {
     getBambooVersion()
   );
 
-  static final String SQA_BASE_URL = "https://simplifyqa.app";
+  public static final String PROPERTIES_PATH =
+    "src/main/resources/properties/plugin.properties";
+  public static final String SQA_BASE_URL = "https://simplifyqa.app";
 
   static final Duration CONNECTION_TIMEOUT = Duration.ofSeconds(10);
   static final Duration REQUEST_TIMEOUT = Duration.ofMinutes(30);
@@ -59,18 +61,21 @@ public class ExecutionConstants {
   public static final String VERBOSE_LABEL_PROPERTY =
     "com.simplifyqa.fields.verbose.labelKey";
 
+  public static final String ADVANCED_CHECK_FIELD =
+    "com.simplifyqa.fields.advancedCheck";
+
   public static final String ERR_INVALID_TOKEN =
-    "com.simplifyqa.errors.invalidExecToken";
+    "The Execution Token is invalid";
   public static final String ERR_EMPTY_TOKEN =
-    "com.simplifyqa.errors.emptyExecToken";
+    "The Execution Token is a required field";
   public static final String WARN_INVALID_APP_URL =
-    "com.simplifyqa.warnings.invalidAppUrl";
+    "The App URL is invalid. (Resolve to default app url: https://simplifyqa.app)";
   public static final String WARN_UNREACHABLE_APP_URL =
-    "com.simplifyqa.warnings.unreachableAppUrl";
+    "The App URL is unreachable. (Resolve to default app url: https://simplifyqa.app)";
   public static final String ERR_EMPTY_APP_URL =
-    "com.simplifyqa.errors.emptyAppUrl";
+    "The App URL is a required field. (Resolve to default app url: https://simplifyqa.app)";
   public static final String WARN_INVALID_THRESHOLD =
-    "com.simplifyqa.warnings.invalidThreshold";
+    "The Threshold value is invalid. Threshold Range: 1.00% to 100.00%. (Resolve to default threshold: 100)";
 
   static final String SIMPLIFYQA_LOG_OUTPUT_PREFIX = "[simplifyqa]";
   static final String SIMPLIFYQA_JUNIT_REPORT_XML = "report.xml";
@@ -108,7 +113,8 @@ public class ExecutionConstants {
     return Optional
       .ofNullable(System.getProperty("atlassian.sdk.version"))
       .orElseGet(() -> {
-        final String pluginVersion = System.getenv("AMPS_PLUGIN_VERSION"); // it appears this env variable is no longer set.
+        final String pluginVersion = System.getenv("AMPS_PLUGIN_VERSION"); // it appears this env variable is no
+        // longer set.
         return StringUtils.isEmpty(pluginVersion) ? "unknown" : pluginVersion;
       });
   }

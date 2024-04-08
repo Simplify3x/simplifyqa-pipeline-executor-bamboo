@@ -22,10 +22,10 @@
         <context>simplifyqa-pipeline-executor</context>
     </web-resource>
 
-    <taskType key="Executor" name="SimplifyQA Pipeline Executor" class="com.simplifyqa.bamboo.plugins.PipelineExecutor.tasks.Execute">
+    <taskType key="Executor" name="SimplifyQA Pipeline Executor" class="com.simplifyqa.bamboo.plugins.ExecutionTask">
         <category name="builder"/>
         <description>A task that performs remote executions on SimplifyQA</description>
-        <configuration class="com.simplifyqa.bamboo.plugins.PipelineExecutor.ui.ExecutionTaskConfigurator"/>
+        <configuration class="com.simplifyqa.bamboo.plugins.ExecutionTaskConfigurator"/>
         <resource type="freemarker" name="edit" location="templates/execution-config.ftl"/>
         <resource type="download" name="icon" location="images/icon.png"/>
         <help link="com.simplifyqa.help.link" title="com.simplifyqa.help.title" />

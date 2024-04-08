@@ -1,11 +1,11 @@
-package com.simplifyqa.bamboo.plugins.PipelineExecutor.Services;
+package com.simplifyqa.bamboo.plugins.api;
 
 public class TriggerPayload {
 
   String token;
 
   // Constructor
-  TriggerPayload(String token) {
+  public TriggerPayload(String token) {
     this.token = token;
   }
 
