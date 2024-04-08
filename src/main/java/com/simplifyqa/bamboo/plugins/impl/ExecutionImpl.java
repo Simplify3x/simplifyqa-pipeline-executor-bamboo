@@ -2,7 +2,6 @@ package com.simplifyqa.bamboo.plugins.impl;
 
 import com.atlassian.bamboo.build.logger.BuildLogger;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import org.json.simple.JSONArray;
 
 public class ExecutionImpl {

@@ -11,7 +11,6 @@ import com.atlassian.sal.api.message.I18nResolver;
 import com.simplifyqa.bamboo.plugins.impl.ExecutionImpl;
 import com.simplifyqa.bamboo.plugins.impl.ExecutionServicesImpl;
 import java.io.IOException;
-import org.apache.velocity.test.provider.BoolObj;
 import org.json.simple.JSONObject;
 
 public class ExecutionTask implements TaskType {
@@ -29,26 +28,6 @@ public class ExecutionTask implements TaskType {
     this.buildLogger = taskContext.getBuildLogger();
 
     buildLogger.addBuildLogEntry("Hello, World!");
-
-    final String exec_token = taskContext
-      .getConfigurationMap()
-      .get(ExecutionConstants.EXEC_TOKEN_FIELD);
-    final String app_url = taskContext
-      .getConfigurationMap()
-      .get(ExecutionConstants.APP_URL_FIELD);
-    final double threshold = Double.valueOf(
-      taskContext.getConfigurationMap().get(ExecutionConstants.THRESHOLD_FIELD)
-    );
-    final boolean verbose = Boolean.valueOf(
-      taskContext.getConfigurationMap().get(ExecutionConstants.VERBOSE_FIELD)
-    );
-
-    buildLogger.addBuildLogEntry(exec_token);
-    buildLogger.addBuildLogEntry(app_url);
-    buildLogger.addBuildLogEntry(String.valueOf(threshold));
-    buildLogger.addBuildLogEntry(String.valueOf(verbose));
-    // buildLogger.addBuildLogEntry(textProvider.getText("com.simplifyqa.fields.verbose.labelKey"));
-
     try {
       if (this.performExecution(taskContext)) return TaskResultBuilder
         .newBuilder(taskContext)

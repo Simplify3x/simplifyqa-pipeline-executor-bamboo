@@ -3,19 +3,20 @@ package com.simplifyqa.bamboo.plugins.impl;
 import com.atlassian.plugin.spring.scanner.annotation.export.ExportAsService;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.ApplicationProperties;
-import com.simplifyqa.bamboo.plugins.ExecutionTask;
 import com.simplifyqa.bamboo.plugins.api.ExecutionServices;
 import com.simplifyqa.bamboo.plugins.api.KillPayload;
 import com.simplifyqa.bamboo.plugins.api.StatusPayload;
 import com.simplifyqa.bamboo.plugins.api.TriggerPayload;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.inject.Inject;
 import javax.inject.Named;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -23,6 +24,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -58,17 +60,20 @@ public class ExecutionServicesImpl implements ExecutionServices {
   }
 
   public static HttpResponse makeHttpPostRequest(String url, String payload)
-    throws URISyntaxException, IOException, InterruptedException {
-    int timeout = 5;
+    throws URISyntaxException, IOException, InterruptedException, KeyManagementException, NoSuchAlgorithmException, KeyStoreException {
+    int timeout = 5 * 60;
     RequestConfig config = RequestConfig
       .custom()
       .setConnectTimeout(timeout * 1000)
       .setConnectionRequestTimeout(timeout * 1000)
       .setSocketTimeout(timeout * 1000)
       .build();
-    CloseableHttpClient client = HttpClientBuilder
-      .create()
-      .setDefaultRequestConfig(config)
+
+    BasicHttpClientConnectionManager connectionManager = new BasicHttpClientConnectionManager();
+
+    CloseableHttpClient client = HttpClients
+      .custom()
+      .setConnectionManager(connectionManager)
       .build();
 
     HttpPost request = new HttpPost(url);
