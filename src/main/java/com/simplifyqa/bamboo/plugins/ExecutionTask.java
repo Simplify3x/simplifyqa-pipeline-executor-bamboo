@@ -25,17 +25,20 @@ public class ExecutionTask implements TaskType {
 
   @Override
   public TaskResult execute(final TaskContext taskContext)
-    throws TaskException {
+      throws TaskException {
     this.buildLogger = taskContext.getBuildLogger();
 
     try {
-      if (this.performExecution(taskContext)) return TaskResultBuilder
-        .newBuilder(taskContext)
-        .success()
-        .build(); else return TaskResultBuilder
-        .newBuilder(taskContext)
-        .failed()
-        .build();
+      if (this.performExecution(taskContext))
+        return TaskResultBuilder
+            .newBuilder(taskContext)
+            .success()
+            .build();
+      else
+        return TaskResultBuilder
+            .newBuilder(taskContext)
+            .failed()
+            .build();
     } catch (NumberFormatException e) {
       e.printStackTrace();
       return TaskResultBuilder.newBuilder(taskContext).failed().build();
@@ -49,153 +52,144 @@ public class ExecutionTask implements TaskType {
   }
 
   public void printLog(String toPrint) {
-    if (toPrint.trim().length() == 0) return;
+    if (toPrint.trim().length() == 0)
+      return;
     buildLogger.addBuildLogEntry(toPrint);
   }
 
   public boolean performExecution(TaskContext taskContext)
-    throws NumberFormatException, IOException, InterruptedException {
+      throws NumberFormatException, IOException, InterruptedException {
     Boolean retFlag = false;
 
     ExecutionImpl exec_obj = new ExecutionImpl(
-      taskContext
-        .getConfigurationMap()
-        .get(ExecutionConstants.EXEC_TOKEN_FIELD),
-      taskContext.getConfigurationMap().get(ExecutionConstants.APP_URL_FIELD),
-      Double.valueOf(
         taskContext
-          .getConfigurationMap()
-          .get(ExecutionConstants.THRESHOLD_FIELD)
-      ),
-      Boolean.valueOf(
-        taskContext.getConfigurationMap().get(ExecutionConstants.VERBOSE_FIELD)
-      ),
-      taskContext.getBuildLogger()
-    );
+            .getConfigurationMap()
+            .get(ExecutionConstants.EXEC_TOKEN_FIELD),
+        taskContext.getConfigurationMap().get(ExecutionConstants.APP_URL_FIELD),
+        Double.valueOf(
+            taskContext
+                .getConfigurationMap()
+                .get(ExecutionConstants.THRESHOLD_FIELD)),
+        Boolean.valueOf(
+            taskContext.getConfigurationMap().get(ExecutionConstants.VERBOSE_FIELD)),
+        taskContext.getBuildLogger());
 
     ExecutionServicesImpl exec_dto = new ExecutionServicesImpl(exec_obj);
 
     if (!exec_dto.startExec()) {
       taskContext
-        .getBuildLogger()
-        .addBuildLogEntry(
-          ExecutionServicesImpl.getTimestamp() + "EXECUTION FAILED!!"
-        );
+          .getBuildLogger()
+          .addBuildLogEntry(
+              ExecutionServicesImpl.getTimestamp() + "EXECUTION FAILED!!");
 
       String asterisks = "";
-      for (int i = 0; i < 51; i++) asterisks += "*";
+      for (int i = 0; i < 51; i++)
+        asterisks += "*";
       taskContext
-        .getBuildLogger()
-        .addBuildLogEntry(
-          ExecutionServicesImpl.getTimestamp() +
-          asterisks +
-          "EOF" +
-          asterisks +
-          "\n"
-        );
+          .getBuildLogger()
+          .addBuildLogEntry(
+              ExecutionServicesImpl.getTimestamp() +
+                  asterisks +
+                  "EOF" +
+                  asterisks +
+                  "\n");
 
       return false;
     } else {
       int executed = exec_obj.getExecutedTcs();
 
-      while (
-        (exec_dto.checkExecStatus().equalsIgnoreCase("INPROGRESS")) &&
-        (exec_obj.getThreshold() > exec_obj.getFailPercent())
-      ) {
+      while ((exec_dto.checkExecStatus().equalsIgnoreCase("INPROGRESS")) &&
+          (exec_obj.getThreshold() > exec_obj.getFailPercent())) {
         if (executed < exec_obj.getExecutedTcs()) {
           executed++;
           taskContext
-            .getBuildLogger()
-            .addBuildLogEntry(
-              ExecutionServices.getTimestamp() +
-              "EXECUTION STATUS: Execution " +
-              exec_obj.getExecStatus() +
-              " for Suite ID: SU-" +
-              exec_obj.getCustomerId() +
-              "" +
-              exec_obj.getSuiteId() +
-              "\n"
-            );
+              .getBuildLogger()
+              .addBuildLogEntry(
+                  ExecutionServices.getTimestamp() +
+                      "EXECUTION STATUS: Execution " +
+                      exec_obj.getExecStatus() +
+                      " for Suite ID: SU-" +
+                      exec_obj.getCustomerId() +
+                      "" +
+                      exec_obj.getSuiteId() +
+                      "\n");
 
           String spaces = " ";
-          for (int i = 0; i < 27; i++) spaces += " ";
+          for (int i = 0; i < 27; i++)
+            spaces += " ";
           taskContext
-            .getBuildLogger()
-            .addBuildLogEntry(
-              spaces +
-              "(Executed " +
-              exec_obj.getExecutedTcs() +
-              " of " +
-              exec_obj.getTotalTcs() +
-              " testcase(s), execution percentage: " +
-              exec_obj.getExecPercent() +
-              " %)"
-            );
+              .getBuildLogger()
+              .addBuildLogEntry(
+                  spaces +
+                      "(Executed " +
+                      exec_obj.getExecutedTcs() +
+                      " of " +
+                      exec_obj.getTotalTcs() +
+                      " testcase(s), execution percentage: " +
+                      exec_obj.getExecPercent() +
+                      " %)");
 
           taskContext
-            .getBuildLogger()
-            .addBuildLogEntry(
-              "\n" +
-              spaces +
-              "(Failed " +
-              exec_obj.getTcsFailed() +
-              " of " +
-              exec_obj.getTotalTcs() +
-              " testcase(s), fail percentage: " +
-              exec_obj.getFailPercent() +
-              " %)"
-            );
+              .getBuildLogger()
+              .addBuildLogEntry(
+                  "\n" +
+                      spaces +
+                      "(Failed " +
+                      exec_obj.getTcsFailed() +
+                      " of " +
+                      exec_obj.getTotalTcs() +
+                      " testcase(s), fail percentage: " +
+                      exec_obj.getFailPercent() +
+                      " %)");
 
           taskContext
-            .getBuildLogger()
-            .addBuildLogEntry(
-              "\n" +
-              spaces +
-              "(Threshold: " +
-              exec_obj.getThreshold() +
-              " % i.e. " +
-              (
-                (exec_obj.getThreshold() / 100.00) *
-                Double.valueOf(exec_obj.getTotalTcs()).intValue() +
-                " of " +
-                exec_obj.getTotalTcs() +
-                " testcase(s))\n"
-              )
-            );
+              .getBuildLogger()
+              .addBuildLogEntry(
+                  "My JSON String: " + exec_obj.getResults().toJSONString());
+
+          taskContext
+              .getBuildLogger()
+              .addBuildLogEntry(
+                  "\n" +
+                      spaces +
+                      "(Threshold: " +
+                      exec_obj.getThreshold() +
+                      " % i.e. " +
+                      ((exec_obj.getThreshold() / 100.00) *
+                          Double.valueOf(exec_obj.getTotalTcs()).intValue() +
+                          " of " +
+                          exec_obj.getTotalTcs() +
+                          " testcase(s))\n"));
 
           for (Object item : exec_obj.getResults()) {
             String tcCode = (((JSONObject) item).get("tcCode")).toString();
 
             String tcName = (((JSONObject) item).get("tcName")).toString();
 
-            String result =
-              (((JSONObject) item).get("result")).toString().toUpperCase();
+            String result = (((JSONObject) item).get("result")).toString().toUpperCase();
 
             int totalSteps = Integer.parseInt(
-              (((JSONObject) item).get("totalSteps")).toString()
-            );
+                (((JSONObject) item).get("totalSteps")).toString());
 
             taskContext
-              .getBuildLogger()
-              .addBuildLogEntry(
-                spaces +
-                tcCode +
-                ": " +
-                tcName +
-                " | TESTCASE " +
-                result +
-                " (total steps: " +
-                totalSteps +
-                ")\n"
-              );
+                .getBuildLogger()
+                .addBuildLogEntry(
+                    spaces +
+                        tcCode +
+                        ": " +
+                        tcName +
+                        " | TESTCASE " +
+                        result +
+                        " (total steps: " +
+                        totalSteps +
+                        ")\n");
           }
 
           if (exec_obj.getThreshold() <= exec_obj.getFailPercent()) {
             this.printLog(
                 "\n" +
-                ExecutionServicesImpl.getTimestamp() +
-                "THRESHOLD REACHED!!!"
-              );
+                    ExecutionServicesImpl.getTimestamp() +
+                    "THRESHOLD REACHED!!!");
             exec_obj.setExecStatus("FAILED");
             break;
           }
@@ -204,137 +198,126 @@ public class ExecutionTask implements TaskType {
 
       exec_dto.checkExecStatus();
       taskContext
-        .getBuildLogger()
-        .addBuildLogEntry(
-          ExecutionServicesImpl.getTimestamp() +
-          "EXECUTION STATUS: Execution " +
-          exec_obj.getExecStatus() +
-          " for Suite ID: SU-" +
-          exec_obj.getCustomerId() +
-          "" +
-          exec_obj.getSuiteId() +
-          "\n"
-        );
+          .getBuildLogger()
+          .addBuildLogEntry(
+              ExecutionServicesImpl.getTimestamp() +
+                  "EXECUTION STATUS: Execution " +
+                  exec_obj.getExecStatus() +
+                  " for Suite ID: SU-" +
+                  exec_obj.getCustomerId() +
+                  "" +
+                  exec_obj.getSuiteId() +
+                  "\n");
 
       String spaces = " ";
-      for (int i = 0; i < 27; i++) spaces += " ";
+      for (int i = 0; i < 27; i++)
+        spaces += " ";
 
       taskContext
-        .getBuildLogger()
-        .addBuildLogEntry(
-          spaces +
-          "(Executed " +
-          exec_obj.getExecutedTcs() +
-          " of " +
-          exec_obj.getTotalTcs() +
-          " testcase(s), execution percentage: " +
-          exec_obj.getExecPercent() +
-          " %)"
-        );
+          .getBuildLogger()
+          .addBuildLogEntry(
+              spaces +
+                  "(Executed " +
+                  exec_obj.getExecutedTcs() +
+                  " of " +
+                  exec_obj.getTotalTcs() +
+                  " testcase(s), execution percentage: " +
+                  exec_obj.getExecPercent() +
+                  " %)");
 
       taskContext
-        .getBuildLogger()
-        .addBuildLogEntry(
-          "\n" +
-          spaces +
-          "(Failed " +
-          exec_obj.getTcsFailed() +
-          " of " +
-          exec_obj.getTotalTcs() +
-          " testcase(s), fail percentage: " +
-          exec_obj.getFailPercent() +
-          " %)"
-        );
+          .getBuildLogger()
+          .addBuildLogEntry(
+              "\n" +
+                  spaces +
+                  "(Failed " +
+                  exec_obj.getTcsFailed() +
+                  " of " +
+                  exec_obj.getTotalTcs() +
+                  " testcase(s), fail percentage: " +
+                  exec_obj.getFailPercent() +
+                  " %)");
 
       taskContext
-        .getBuildLogger()
-        .addBuildLogEntry(
-          "\n" +
-          spaces +
-          "(Threshold: " +
-          exec_obj.getThreshold() +
-          " % i.e. " +
-          (
-            (exec_obj.getThreshold() / 100.00) *
-            Double.valueOf(exec_obj.getTotalTcs()).intValue() +
-            " of " +
-            exec_obj.getTotalTcs() +
-            " testcase(s))\n"
-          )
-        );
+          .getBuildLogger()
+          .addBuildLogEntry(
+              "\n" +
+                  spaces +
+                  "(Threshold: " +
+                  exec_obj.getThreshold() +
+                  " % i.e. " +
+                  ((exec_obj.getThreshold() / 100.00) *
+                      Double.valueOf(exec_obj.getTotalTcs()).intValue() +
+                      " of " +
+                      exec_obj.getTotalTcs() +
+                      " testcase(s))\n"));
 
-        
       for (Object item : exec_obj.getResults()) {
         String tcCode = (((JSONObject) item).get("tcCode")).toString();
         String tcName = (((JSONObject) item).get("tcName")).toString();
-        String result =
-          (((JSONObject) item).get("result")).toString().toUpperCase();
+        String result = (((JSONObject) item).get("result")).toString().toUpperCase();
         int totalSteps = Integer.parseInt(
-          (((JSONObject) item).get("totalSteps")).toString()
-        );
+            (((JSONObject) item).get("totalSteps")).toString());
 
         taskContext
-          .getBuildLogger()
-          .addBuildLogEntry(
-            spaces +
-            tcCode +
-            ": " +
-            tcName +
-            " | TESTCASE " +
-            result +
-            " (total steps: " +
-            totalSteps +
-            ")\n"
-          );
+            .getBuildLogger()
+            .addBuildLogEntry(
+                spaces +
+                    tcCode +
+                    ": " +
+                    tcName +
+                    " | TESTCASE " +
+                    result +
+                    " (total steps: " +
+                    totalSteps +
+                    ")\n");
       }
 
       if (exec_obj.getThreshold() <= exec_obj.getFailPercent()) {
         taskContext
-          .getBuildLogger()
-          .addBuildLogEntry(
-            ExecutionServicesImpl.getTimestamp() + "EXECUTION FAILED!!"
-          );
+            .getBuildLogger()
+            .addBuildLogEntry(
+                ExecutionServicesImpl.getTimestamp() + "EXECUTION FAILED!!");
 
-        if (exec_dto.killExec()) taskContext
-          .getBuildLogger()
-          .addBuildLogEntry(
-            ExecutionServicesImpl.getTimestamp() +
-            "EXECUTION STATUS: SUCCESSFUL to explicitly kill the execution!\n"
-          ); else taskContext
-          .getBuildLogger()
-          .addBuildLogEntry(
-            ExecutionServicesImpl.getTimestamp() +
-            "EXECUTION STATUS: FAILED to explicitly kill the execution!\n"
-          );
+        if (exec_dto.killExec())
+          taskContext
+              .getBuildLogger()
+              .addBuildLogEntry(
+                  ExecutionServicesImpl.getTimestamp() +
+                      "EXECUTION STATUS: SUCCESSFUL to explicitly kill the execution!\n");
+        else
+          taskContext
+              .getBuildLogger()
+              .addBuildLogEntry(
+                  ExecutionServicesImpl.getTimestamp() +
+                      "EXECUTION STATUS: FAILED to explicitly kill the execution!\n");
       } else {
         taskContext
-          .getBuildLogger()
-          .addBuildLogEntry(
-            ExecutionServicesImpl.getTimestamp() + "EXECUTION PASSED!!"
-          );
+            .getBuildLogger()
+            .addBuildLogEntry(
+                ExecutionServicesImpl.getTimestamp() + "EXECUTION PASSED!!");
         retFlag = true;
       }
 
       taskContext
-        .getBuildLogger()
-        .addBuildLogEntry(
-          ExecutionServicesImpl.getTimestamp() +
-          "REPORT URL: " +
-          exec_obj.getReportUrl() +
-          "\n"
-        );
+          .getBuildLogger()
+          .addBuildLogEntry(
+              ExecutionServicesImpl.getTimestamp() +
+                  "REPORT URL: " +
+                  exec_obj.getReportUrl() +
+                  "\n");
     }
     String asterisks = "";
-    for (int i = 0; i < 51; i++) asterisks += "*";
+    for (int i = 0; i < 51; i++)
+      asterisks += "*";
     taskContext
-      .getBuildLogger()
-      .addBuildLogEntry(
-        ExecutionServicesImpl.getTimestamp() +
-        asterisks +
-        "EOF" +
-        asterisks +
-        "\n"
-      );
+        .getBuildLogger()
+        .addBuildLogEntry(
+            ExecutionServicesImpl.getTimestamp() +
+                asterisks +
+                "EOF" +
+                asterisks +
+                "\n");
 
     return retFlag;
   }

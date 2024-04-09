@@ -420,7 +420,29 @@ public class ExecutionServicesImpl extends ExecutionServices {
           try {
             JSONObject jsonResponse = (JSONObject) new JSONParser()
               .parse(response.getResponseBody());
-            if (Boolean.valueOf(jsonResponse.get("success").toString())) {
+            if (
+              Boolean.valueOf(jsonResponse.get("success").toString()) &&
+              !(
+                (
+                  (String) (
+                    (JSONObject) new JSONParser()
+                      .parse(
+                        (
+                          (JSONObject) new JSONParser()
+                            .parse(
+                              (
+                                (JSONObject) new JSONParser()
+                                  .parse(response.getResponseBody())
+                              ).get("data")
+                                .toString()
+                            )
+                        ).get("data")
+                          .toString()
+                      )
+                  ).get("execution")
+                ).equalsIgnoreCase("UNINITIALIZED")
+              )
+            ) {
               break; // Break the loop if success is true
             }
           } catch (ParseException e) {
@@ -494,7 +516,7 @@ public class ExecutionServicesImpl extends ExecutionServices {
             ) this.exec_obj.setTcsFailed(this.exec_obj.getTcsFailed() + 1);
 
             this.exec_obj.setExecutedTcs(0);
-            
+
             for (Object item : (JSONArray) dataObj.get("result")) if (
               (
                 ((JSONObject) item).get("result")
