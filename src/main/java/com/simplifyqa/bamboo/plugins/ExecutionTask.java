@@ -8,6 +8,7 @@ import com.atlassian.bamboo.task.TaskResultBuilder;
 import com.atlassian.bamboo.task.TaskType;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.message.I18nResolver;
+import com.simplifyqa.bamboo.plugins.api.ExecutionServices;
 import com.simplifyqa.bamboo.plugins.impl.ExecutionImpl;
 import com.simplifyqa.bamboo.plugins.impl.ExecutionServicesImpl;
 import java.io.IOException;
@@ -27,7 +28,6 @@ public class ExecutionTask implements TaskType {
     throws TaskException {
     this.buildLogger = taskContext.getBuildLogger();
 
-    buildLogger.addBuildLogEntry("Hello, World!");
     try {
       if (this.performExecution(taskContext)) return TaskResultBuilder
         .newBuilder(taskContext)
@@ -42,6 +42,9 @@ public class ExecutionTask implements TaskType {
     } catch (IOException e) {
       e.printStackTrace();
       return TaskResultBuilder.newBuilder(taskContext).failed().build();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+      return TaskResultBuilder.newBuilder(taskContext).failed().build();
     }
   }
 
@@ -51,9 +54,8 @@ public class ExecutionTask implements TaskType {
   }
 
   public boolean performExecution(TaskContext taskContext)
-    throws NumberFormatException, IOException {
+    throws NumberFormatException, IOException, InterruptedException {
     Boolean retFlag = false;
-    ExecutionServicesImpl exec_dto = new ExecutionServicesImpl(null);
 
     ExecutionImpl exec_obj = new ExecutionImpl(
       taskContext
@@ -71,16 +73,30 @@ public class ExecutionTask implements TaskType {
       taskContext.getBuildLogger()
     );
 
-    exec_dto.setExecObj(exec_obj);
+    ExecutionServicesImpl exec_dto = new ExecutionServicesImpl(exec_obj);
 
     if (!exec_dto.startExec()) {
-      return retFlag;
+      taskContext
+        .getBuildLogger()
+        .addBuildLogEntry(
+          ExecutionServicesImpl.getTimestamp() + "EXECUTION FAILED!!"
+        );
+
+      String asterisks = "";
+      for (int i = 0; i < 51; i++) asterisks += "*";
+      taskContext
+        .getBuildLogger()
+        .addBuildLogEntry(
+          ExecutionServicesImpl.getTimestamp() +
+          asterisks +
+          "EOF" +
+          asterisks +
+          "\n"
+        );
+
+      return false;
     } else {
       int executed = exec_obj.getExecutedTcs();
-
-      if (exec_obj.getVerbose()) this.printLog(
-          exec_obj.getReqBody() + exec_obj.getRespBody() + "\n"
-        );
 
       while (
         (exec_dto.checkExecStatus().equalsIgnoreCase("INPROGRESS")) &&
@@ -88,8 +104,10 @@ public class ExecutionTask implements TaskType {
       ) {
         if (executed < exec_obj.getExecutedTcs()) {
           executed++;
-          this.printLog(
-              ExecutionServicesImpl.getTimestamp() +
+          taskContext
+            .getBuildLogger()
+            .addBuildLogEntry(
+              ExecutionServices.getTimestamp() +
               "EXECUTION STATUS: Execution " +
               exec_obj.getExecStatus() +
               " for Suite ID: SU-" +
@@ -101,7 +119,9 @@ public class ExecutionTask implements TaskType {
 
           String spaces = " ";
           for (int i = 0; i < 27; i++) spaces += " ";
-          this.printLog(
+          taskContext
+            .getBuildLogger()
+            .addBuildLogEntry(
               spaces +
               "(Executed " +
               exec_obj.getExecutedTcs() +
@@ -112,7 +132,9 @@ public class ExecutionTask implements TaskType {
               " %)"
             );
 
-          this.printLog(
+          taskContext
+            .getBuildLogger()
+            .addBuildLogEntry(
               "\n" +
               spaces +
               "(Failed " +
@@ -124,7 +146,9 @@ public class ExecutionTask implements TaskType {
               " %)"
             );
 
-          this.printLog(
+          taskContext
+            .getBuildLogger()
+            .addBuildLogEntry(
               "\n" +
               spaces +
               "(Threshold: " +
@@ -151,7 +175,9 @@ public class ExecutionTask implements TaskType {
               (((JSONObject) item).get("totalSteps")).toString()
             );
 
-            this.printLog(
+            taskContext
+              .getBuildLogger()
+              .addBuildLogEntry(
                 spaces +
                 tcCode +
                 ": " +
@@ -163,10 +189,6 @@ public class ExecutionTask implements TaskType {
                 ")\n"
               );
           }
-
-          if (exec_obj.getVerbose()) this.printLog(
-              exec_obj.getReqBody() + exec_obj.getRespBody() + "\n"
-            );
 
           if (exec_obj.getThreshold() <= exec_obj.getFailPercent()) {
             this.printLog(
@@ -181,7 +203,9 @@ public class ExecutionTask implements TaskType {
       }
 
       exec_dto.checkExecStatus();
-      this.printLog(
+      taskContext
+        .getBuildLogger()
+        .addBuildLogEntry(
           ExecutionServicesImpl.getTimestamp() +
           "EXECUTION STATUS: Execution " +
           exec_obj.getExecStatus() +
@@ -195,7 +219,9 @@ public class ExecutionTask implements TaskType {
       String spaces = " ";
       for (int i = 0; i < 27; i++) spaces += " ";
 
-      this.printLog(
+      taskContext
+        .getBuildLogger()
+        .addBuildLogEntry(
           spaces +
           "(Executed " +
           exec_obj.getExecutedTcs() +
@@ -206,7 +232,9 @@ public class ExecutionTask implements TaskType {
           " %)"
         );
 
-      this.printLog(
+      taskContext
+        .getBuildLogger()
+        .addBuildLogEntry(
           "\n" +
           spaces +
           "(Failed " +
@@ -218,7 +246,9 @@ public class ExecutionTask implements TaskType {
           " %)"
         );
 
-      this.printLog(
+      taskContext
+        .getBuildLogger()
+        .addBuildLogEntry(
           "\n" +
           spaces +
           "(Threshold: " +
@@ -233,6 +263,7 @@ public class ExecutionTask implements TaskType {
           )
         );
 
+        
       for (Object item : exec_obj.getResults()) {
         String tcCode = (((JSONObject) item).get("tcCode")).toString();
         String tcName = (((JSONObject) item).get("tcName")).toString();
@@ -242,7 +273,9 @@ public class ExecutionTask implements TaskType {
           (((JSONObject) item).get("totalSteps")).toString()
         );
 
-        this.printLog(
+        taskContext
+          .getBuildLogger()
+          .addBuildLogEntry(
             spaces +
             tcCode +
             ": " +
@@ -255,34 +288,36 @@ public class ExecutionTask implements TaskType {
           );
       }
 
-      if (exec_obj.getVerbose()) this.printLog(
-          exec_obj.getReqBody() + exec_obj.getRespBody() + "\n"
-        );
-
       if (exec_obj.getThreshold() <= exec_obj.getFailPercent()) {
-        this.printLog(
+        taskContext
+          .getBuildLogger()
+          .addBuildLogEntry(
             ExecutionServicesImpl.getTimestamp() + "EXECUTION FAILED!!"
           );
 
-        if (exec_dto.killExec()) this.printLog(
+        if (exec_dto.killExec()) taskContext
+          .getBuildLogger()
+          .addBuildLogEntry(
             ExecutionServicesImpl.getTimestamp() +
             "EXECUTION STATUS: SUCCESSFUL to explicitly kill the execution!\n"
-          ); else this.printLog(
+          ); else taskContext
+          .getBuildLogger()
+          .addBuildLogEntry(
             ExecutionServicesImpl.getTimestamp() +
             "EXECUTION STATUS: FAILED to explicitly kill the execution!\n"
           );
-
-        if (exec_obj.getVerbose()) this.printLog(
-            exec_obj.getReqBody() + exec_obj.getRespBody() + "\n"
-          );
       } else {
-        this.printLog(
+        taskContext
+          .getBuildLogger()
+          .addBuildLogEntry(
             ExecutionServicesImpl.getTimestamp() + "EXECUTION PASSED!!"
           );
         retFlag = true;
       }
 
-      this.printLog(
+      taskContext
+        .getBuildLogger()
+        .addBuildLogEntry(
           ExecutionServicesImpl.getTimestamp() +
           "REPORT URL: " +
           exec_obj.getReportUrl() +
@@ -291,7 +326,9 @@ public class ExecutionTask implements TaskType {
     }
     String asterisks = "";
     for (int i = 0; i < 51; i++) asterisks += "*";
-    this.printLog(
+    taskContext
+      .getBuildLogger()
+      .addBuildLogEntry(
         ExecutionServicesImpl.getTimestamp() +
         asterisks +
         "EOF" +

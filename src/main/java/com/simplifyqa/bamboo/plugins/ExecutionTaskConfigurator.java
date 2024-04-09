@@ -126,10 +126,9 @@ public class ExecutionTaskConfigurator extends AbstractTaskConfigurator {
 
     try {
       if (
-        ExecutionServicesImpl
+        new ExecutionServicesImpl()
           .makeHttpGetRequest(app_url)
-          .getStatusLine()
-          .getStatusCode() !=
+          .getResponseCode() !=
         200
       ) {
         errorCollection.addError(
@@ -137,7 +136,7 @@ public class ExecutionTaskConfigurator extends AbstractTaskConfigurator {
           ExecutionConstants.WARN_INVALID_APP_URL
         );
       }
-    } catch (URISyntaxException | IOException | InterruptedException e) {
+    } catch (IOException e) {
       errorCollection.addError(
         ExecutionConstants.APP_URL_FIELD,
         ExecutionConstants.WARN_INVALID_APP_URL

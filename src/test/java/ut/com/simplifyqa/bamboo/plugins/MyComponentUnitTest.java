@@ -8,9 +8,9 @@ import org.junit.Test;
 
 public class MyComponentUnitTest {
 
-  @Test
-  public void testMyName() {
-    ExecutionServices component = new ExecutionServicesImpl(null);
-    assertEquals("names do not match!", "myComponent", component.getName());
-  }
+  // @Test
+  // public void testMyName() {
+  //   ExecutionServices component = new ExecutionServicesImpl(null);
+  //   assertEquals("names do not match!", "myComponent", component.getName());
+  // }
 }

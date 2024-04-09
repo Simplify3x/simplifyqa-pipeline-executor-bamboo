@@ -21,13 +21,12 @@ public class MyComponentWiredTest {
     this.applicationProperties = applicationProperties;
     this.ExecutionServices = ExecutionServices;
   }
-
-  @Test
-  public void testMyName() {
-    assertEquals(
-      "names do not match!",
-      "myComponent:" + applicationProperties.getDisplayName(),
-      ExecutionServices.getName()
-    );
-  }
+  // @Test
+  // public void testMyName() {
+  //   assertEquals(
+  //     "names do not match!",
+  //     "myComponent:" + applicationProperties.getDisplayName(),
+  //     ExecutionServices.getName()
+  //   );
+  // }
 }

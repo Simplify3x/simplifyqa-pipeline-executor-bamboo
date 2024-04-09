@@ -1,0 +1,73 @@
+{
+  "startExec": {
+    "200": {
+      "status_message": "Execution Started Successfully. Initializing Testcases in the triggered suite"
+    },
+    "400": {
+      "status_message": "Execution Failed.",
+      "reason_of_failure": "Invalid Execution token for the specified env: "
+    },
+    "403": {
+      "status_message": "Execution Failed.",
+      "reason_of_failure": "Invalid Execution token for the specified env: "
+    },
+    "500": {
+      "status_message": "Execution Failed.",
+      "reason_of_failure": "The cloud server or the local machine is unavailable for the specified env: "
+    },
+    "504": {
+      "status_message": "Execution Failed.",
+      "reason_of_failure": "The server gateway timed-out for the specified env: "
+    },
+    "default": {
+      "status_message": "Execution Failed.",
+      "reason_of_failure": "An unclassified error has occurred."
+    }
+  },
+  "checkExecStatus": {
+    "200": { "status_message": "Execution Status fetched successfully." },
+    "400": {
+      "status_message": "Execution Status could not be fetched.",
+      "reason_of_failure": "Logout and login again, Invalid Execution token for the specified env: "
+    },
+    "403": {
+      "status_message": "Execution Status could not be fetched.",
+      "reason_of_failure": "Logout and login again, Invalid Authorization token for the specified env: "
+    },
+    "500": {
+      "status_message": "Execution Status could not be fetched.",
+      "reason_of_failure": "The cloud server or the local machine is unavailable for the specified env: "
+    },
+    "504": {
+      "status_message": "Execution Status could not be fetched.",
+      "reason_of_failure": "The server gateway timed-out for the specified env: "
+    },
+    "default": {
+      "status_message": "Execution Status could not be fetched.",
+      "reason_of_failure": "An unclassified error has occurred."
+    }
+  },
+  "killExec": {
+    "200": { "status_message": "Execution Killed Successfully." },
+    "400": {
+      "status_message": "Failed to kill execution.",
+      "reason_of_failure": "Logout and login again, Invalid Authorization token for the specified env: "
+    },
+    "403": {
+      "status_message": "Failed to kill execution.",
+      "reason_of_failure": null
+    },
+    "500": {
+      "status_message": "Failed to kill execution.",
+      "reason_of_failure": "The Pipeline Token is invalid for the specified env: "
+    },
+    "504": {
+      "status_message": "Failed to kill execution.",
+      "reason_of_failure": "The server gateway timed-out for the specified env: "
+    },
+    "default": {
+      "status_message": "Failed to kill execution.",
+      "reason_of_failure": "An unclassified error has occurred."
+    }
+  }
+}
