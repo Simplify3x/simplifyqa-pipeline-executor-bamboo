@@ -1,6 +1,5 @@
 package com.simplifyqa.bamboo.plugins.api;
 
-import com.simplifyqa.bamboo.plugins.api.payloads.GenericPayload;
 import com.simplifyqa.bamboo.plugins.impl.HttpResponse;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -56,7 +55,7 @@ public abstract class ExecutionServices {
       ExecutionServices.TIMESTAMP_FORMAT
     );
     Date date = new Date();
-    return "\n[" + formatter.format(date) + " Hrs] ";
+    return "[" + formatter.format(date) + " Hrs] ";
   }
 
   protected abstract HttpResponse makeHttpPostRequest(
@@ -67,9 +66,12 @@ public abstract class ExecutionServices {
   protected abstract HttpResponse makeHttpGetRequest(String url)
     throws URISyntaxException, IOException, InterruptedException;
 
-  protected abstract boolean startExec() throws IOException;
+  protected abstract void printStats();
 
-  protected abstract String checkExecStatus() throws InterruptedException, IOException;
+  protected abstract ExecutionState startExec() throws IOException;
+
+  protected abstract ExecutionState checkExecStatus()
+    throws InterruptedException, IOException;
 
   protected abstract boolean killExec() throws IOException;
 }

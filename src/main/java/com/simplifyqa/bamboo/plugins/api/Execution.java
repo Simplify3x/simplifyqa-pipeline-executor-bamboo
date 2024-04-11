@@ -2,6 +2,7 @@ package com.simplifyqa.bamboo.plugins.api;
 
 import com.atlassian.bamboo.build.logger.BuildLogger;
 import java.io.IOException;
+import org.apache.activemq.filter.function.regexMatchFunction;
 import org.json.simple.JSONArray;
 
 // Execution Services Object
@@ -29,7 +30,9 @@ public abstract class Execution {
   protected String report_url = "";
   protected JSONArray results;
 
-  protected String exec_status = "UNINITIALIZED";
+  protected String calledAPI, req_body, resp_body;
+
+  protected ExecutionState exec_status = ExecutionState.UNINITIALIZED;
 
   protected BuildLogger logger;
 
@@ -48,7 +51,7 @@ public abstract class Execution {
 
     logger.addBuildLogEntry(
       ExecutionServices.getTimestamp() +
-      "**************************************START OF LOGS**************************************\n"
+      "**************************************START OF LOGS**************************************"
     );
     logger.addBuildLogEntry(
       ExecutionServices.getTimestamp() + "The Set Parameters are:"
@@ -159,8 +162,20 @@ public abstract class Execution {
     return this.results;
   }
 
-  public String getExecStatus() {
+  public ExecutionState getExecStatus() {
     return this.exec_status;
+  }
+
+  public String getCalledAPI() {
+    return this.calledAPI;
+  }
+
+  public String getReqBody() {
+    return this.req_body;
+  }
+
+  public String getRespBody() {
+    return this.resp_body;
   }
 
   // Setters
@@ -230,7 +245,19 @@ public abstract class Execution {
     this.results = results;
   }
 
-  public void setExecStatus(String exec_status) {
-    this.exec_status = exec_status.toUpperCase();
+  public void setExecStatus(ExecutionState exec_status) {
+    this.exec_status = exec_status;
+  }
+
+  public void setCalledAPI(String calledAPI) {
+    this.calledAPI = calledAPI;
+  }
+
+  public void setReqBody(String req_body) {
+    this.req_body = req_body;
+  }
+
+  public void setRespBody(String resp_body) {
+    this.resp_body = resp_body;
   }
 }

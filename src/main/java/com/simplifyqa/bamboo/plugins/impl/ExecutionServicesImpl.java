@@ -2,6 +2,7 @@ package com.simplifyqa.bamboo.plugins.impl;
 
 import com.simplifyqa.bamboo.plugins.api.Execution;
 import com.simplifyqa.bamboo.plugins.api.ExecutionServices;
+import com.simplifyqa.bamboo.plugins.api.ExecutionState;
 import com.simplifyqa.bamboo.plugins.api.payloads.GenericPayload;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,6 +10,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import org.apache.commons.jxpath.ri.model.beans.NullPointer;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -24,66 +26,6 @@ public class ExecutionServicesImpl extends ExecutionServices {
     super(exec_dao);
   }
 
-  // @Override
-  // public HttpResponse makeHttpPostRequest(String url, String payload) {
-  //   int timeout = 5 * 60;
-  //   RequestConfig config = RequestConfig
-  //     .custom()
-  //     .setConnectTimeout(timeout * 1000)
-  //     .setConnectionRequestTimeout(timeout * 1000)
-  //     .setSocketTimeout(timeout * 1000)
-  //     .build();
-
-  //   BasicHttpClientConnectionManager connectionManager = new BasicHttpClientConnectionManager();
-
-  //   CloseableHttpClient client = HttpClients
-  //     .custom()
-  //     .setConnectionManager(connectionManager)
-  //     .build();
-
-  //   HttpPost request = new HttpPost(url);
-  //   StringEntity entity;
-  //   try {
-  //     entity = new StringEntity(payload);
-
-  //     entity.setContentType("application/json");
-  //     request.setEntity(entity);
-  //     request.setHeader("Content-Type", "application/json");
-  //     request.setHeader("Authorization", this.exec_obj.getAuthKey());
-
-  //     return client.execute(request);
-  //   } catch (UnsupportedEncodingException e) {
-  //     e.printStackTrace();
-  //     return null;
-  //   } catch (ClientProtocolException e) {
-  //     e.printStackTrace();
-  //     return null;
-  //   } catch (IOException e) {
-  //     e.printStackTrace();
-  //     return null;
-  //   }
-  // }
-
-  // @Override
-  // public HttpResponse makeHttpGetRequest(String url)
-  //   throws ClientProtocolException, IOException {
-  //   int timeout = 5;
-  //   RequestConfig config = RequestConfig
-  //     .custom()
-  //     .setConnectTimeout(timeout * 1000)
-  //     .setConnectionRequestTimeout(timeout * 1000)
-  //     .setSocketTimeout(timeout * 1000)
-  //     .build();
-
-  //   CloseableHttpClient client = HttpClientBuilder
-  //     .create()
-  //     .setDefaultRequestConfig(config)
-  //     .build();
-
-  //   HttpGet request = new HttpGet(url);
-
-  //   return client.execute(request);
-  // }
   private static final int CONNECTION_TIMEOUT = 300000; // 5 minutes
 
   @Override
@@ -148,9 +90,7 @@ public class ExecutionServicesImpl extends ExecutionServices {
         )
       ) {
         String line;
-        while ((line = reader.readLine()) != null) {
-          response.append(line.trim());
-        }
+        while ((line = reader.readLine()) != null) response.append(line.trim());
       }
 
       return new HttpResponse(responseCode, response.toString());
@@ -162,14 +102,131 @@ public class ExecutionServicesImpl extends ExecutionServices {
   }
 
   @Override
-  public boolean startExec() throws IOException {
-    if (this.exec_obj == null) return false; else {
+  public void printStats() {
+    this.exec_obj.getLogger()
+      .addBuildLogEntry(
+        ExecutionServices.getTimestamp() +
+        "EXECUTION STATUS: Execution " +
+        exec_obj.getExecStatus() +
+        " for Suite ID: SU-" +
+        exec_obj.getCustomerId() +
+        "" +
+        exec_obj.getSuiteId() +
+        "\n"
+      );
+
+    String spaces = " ";
+    for (int i = 0; i < 27; i++) spaces += " ";
+    this.exec_obj.getLogger()
+      .addBuildLogEntry(
+        spaces +
+        "(Executed " +
+        exec_obj.getExecutedTcs() +
+        " of " +
+        exec_obj.getTotalTcs() +
+        " testcase(s), execution percentage: " +
+        exec_obj.getExecPercent() +
+        " %)"
+      );
+
+    this.exec_obj.getLogger()
+      .addBuildLogEntry(
+        spaces +
+        "(Failed " +
+        exec_obj.getTcsFailed() +
+        " of " +
+        exec_obj.getTotalTcs() +
+        " testcase(s), fail percentage: " +
+        exec_obj.getFailPercent() +
+        " %)"
+      );
+
+    this.exec_obj.getLogger()
+      .addBuildLogEntry(
+        spaces +
+        "(Threshold: " +
+        exec_obj.getThreshold() +
+        " % i.e. " +
+        (
+          (exec_obj.getThreshold() / 100.00) *
+          Double.valueOf(exec_obj.getTotalTcs()).intValue() +
+          " of " +
+          exec_obj.getTotalTcs() +
+          " testcase(s))\n"
+        )
+      );
+
+    for (Object item : exec_obj.getResults()) {
+      String tcCode = (((JSONObject) item).get("tcCode")).toString();
+
+      String tcName = (((JSONObject) item).get("tcName")).toString();
+
+      String result =
+        (((JSONObject) item).get("result")).toString().toUpperCase();
+
+      int totalSteps = Integer.parseInt(
+        (((JSONObject) item).get("totalSteps")).toString()
+      );
+
+      this.exec_obj.getLogger()
+        .addBuildLogEntry(
+          spaces +
+          tcCode +
+          ": " +
+          tcName +
+          " | TESTCASE " +
+          result +
+          " (total steps: " +
+          totalSteps +
+          ")"
+        );
+    }
+
+    if (this.exec_obj.getVerbose()) {
+      this.exec_obj.getLogger()
+        .addBuildLogEntry(
+          ExecutionServices.getTimestamp() +
+          "API CALLED: " +
+          this.exec_obj.getCalledAPI()
+        );
+      this.exec_obj.getLogger()
+        .addBuildLogEntry(
+          ExecutionServicesImpl.getTimestamp() +
+          "REQUEST BODY: " +
+          this.exec_obj.getReqBody()
+        );
+      this.exec_obj.getLogger()
+        .addBuildLogEntry(
+          ExecutionServicesImpl.getTimestamp() +
+          "RESPONSE BODY: " +
+          this.exec_obj.getRespBody()
+        );
+    }
+  }
+
+  @Override
+  public ExecutionState startExec() {
+    if (this.exec_obj == null) {
+      this.exec_obj.setExecStatus(ExecutionState.FAILED);
+      return this.exec_obj.getExecStatus();
+    } else {
       GenericPayload payload = GenericPayload.createTriggerPayload(
         this.exec_obj
       );
-      HttpResponse response =
-        this.makeHttpPostRequest(this.build_api, payload.getPayload());
-      if (response == null) return false; else {
+      HttpResponse response;
+      try {
+        response =
+          this.makeHttpPostRequest(this.build_api, payload.getPayload());
+      } catch (IOException e) {
+        e.printStackTrace();
+        this.exec_obj.setExecStatus(ExecutionState.FAILED);
+        return this.exec_obj.getExecStatus();
+      }
+
+      if (response == null) {
+        this.exec_obj.setExecStatus(ExecutionState.FAILED);
+        return this.exec_obj.getExecStatus();
+      } else {
         switch (response.getResponseCode()) {
           case 200:
             try {
@@ -208,38 +265,31 @@ public class ExecutionServicesImpl extends ExecutionServices {
                       .parse(response.getResponseBody())
                   ).get("authKey")
                 );
+              // this.exec_obj.getLogger()
+              //   .addBuildLogEntry(
+              //     "EXEC_ID: " +
+              //     this.exec_obj.getExecId() +
+              //     "CUST_ID: " +
+              //     this.exec_obj.getCustomerId() +
+              //     "PROJ_ID: " +
+              //     this.exec_obj.getProjectId() +
+              //     "AUTH_KEY: " +
+              //     this.exec_obj.getAuthKey()
+              //   );
             } catch (ParseException PE) {
               PE.printStackTrace();
-              return false;
+              return ExecutionState.FAILED;
             }
 
             this.exec_obj.getLogger()
               .addBuildLogEntry(
-                String.format(
-                  ExecutionServices.getTimestamp(),
-                  "EXECUTION STATUS: Status code " +
-                  response.getResponseCode() +
-                  ", Execution triggered."
-                )
+                ExecutionServices.getTimestamp() +
+                "EXECUTION STATUS: Status code " +
+                response.getResponseCode() +
+                ", Execution triggered."
               );
-
-            if (this.exec_obj.getVerbose()) {
-              this.exec_obj.getLogger()
-                .addBuildLogEntry(
-                  ExecutionServices.getTimestamp() +
-                  "REQUEST BODY: " +
-                  payload.getPayload()
-                );
-
-              this.exec_obj.getLogger()
-                .addBuildLogEntry(
-                  ExecutionServices.getTimestamp() +
-                  "RESPONSE BODY: " +
-                  response.getResponseBody()
-                );
-            }
-
-            return true;
+            this.exec_obj.setExecStatus(ExecutionState.INPROGRESS);
+            break;
           case 400:
             this.exec_obj.getLogger()
               .addBuildLogEntry(
@@ -257,22 +307,12 @@ public class ExecutionServicesImpl extends ExecutionServices {
               );
 
             if (this.exec_obj.getVerbose()) {
-              this.exec_obj.getLogger()
-                .addBuildLogEntry(
-                  ExecutionServicesImpl.getTimestamp() +
-                  "REQUEST BODY: " +
-                  payload.getPayload()
-                );
-
-              this.exec_obj.getLogger()
-                .addBuildLogEntry(
-                  ExecutionServicesImpl.getTimestamp() +
-                  "RESPONSE BODY: " +
-                  response.getResponseBody()
-                );
+              this.exec_obj.setCalledAPI(this.build_api);
+              this.exec_obj.setReqBody(payload.getPayload());
+              this.exec_obj.setRespBody(response.getResponseBody());
             }
-
-            return false;
+            this.exec_obj.setExecStatus(ExecutionState.FAILED);
+            break;
           case 403:
             this.exec_obj.getLogger()
               .addBuildLogEntry(
@@ -288,24 +328,8 @@ public class ExecutionServicesImpl extends ExecutionServices {
                 "REASON OF FAILURE: Invalid Execution token for the specified env: " +
                 this.exec_obj.getApp_url()
               );
-
-            if (this.exec_obj.getVerbose()) {
-              this.exec_obj.getLogger()
-                .addBuildLogEntry(
-                  ExecutionServicesImpl.getTimestamp() +
-                  "REQUEST BODY: " +
-                  payload.getPayload()
-                );
-
-              this.exec_obj.getLogger()
-                .addBuildLogEntry(
-                  ExecutionServicesImpl.getTimestamp() +
-                  "RESPONSE BODY: " +
-                  response.getResponseBody()
-                );
-            }
-
-            return false;
+            this.exec_obj.setExecStatus(ExecutionState.FAILED);
+            break;
           case 500:
             this.exec_obj.getLogger()
               .addBuildLogEntry(
@@ -321,23 +345,8 @@ public class ExecutionServicesImpl extends ExecutionServices {
                 "REASON OF FAILURE: The cloud server or the local machine is unavailable for the specified env: " +
                 this.exec_obj.getApp_url()
               );
-
-            if (this.exec_obj.getVerbose()) {
-              this.exec_obj.getLogger()
-                .addBuildLogEntry(
-                  ExecutionServicesImpl.getTimestamp() +
-                  "REQUEST BODY: " +
-                  payload.getPayload()
-                );
-              this.exec_obj.getLogger()
-                .addBuildLogEntry(
-                  ExecutionServicesImpl.getTimestamp() +
-                  "RESPONSE BODY: " +
-                  response.getResponseBody()
-                );
-            }
-
-            return false;
+            this.exec_obj.setExecStatus(ExecutionState.FAILED);
+            break;
           case 504:
             this.exec_obj.getLogger()
               .addBuildLogEntry(
@@ -352,22 +361,8 @@ public class ExecutionServicesImpl extends ExecutionServices {
                 "REASON OF FAILURE: The server gateway timed-out for the specified env: " +
                 this.exec_obj.getApp_url()
               );
-
-            if (this.exec_obj.getVerbose()) {
-              this.exec_obj.getLogger()
-                .addBuildLogEntry(
-                  ExecutionServicesImpl.getTimestamp() +
-                  "REQUEST BODY: " +
-                  payload.getPayload()
-                );
-              this.exec_obj.getLogger()
-                .addBuildLogEntry(
-                  ExecutionServicesImpl.getTimestamp() +
-                  "RESPONSE BODY: " +
-                  response.getResponseBody()
-                );
-            }
-            return false;
+            this.exec_obj.setExecStatus(ExecutionState.FAILED);
+            break;
           default:
             this.exec_obj.getLogger()
               .addBuildLogEntry(
@@ -379,85 +374,113 @@ public class ExecutionServicesImpl extends ExecutionServices {
             this.exec_obj.getLogger()
               .addBuildLogEntry(
                 ExecutionServicesImpl.getTimestamp() +
-                "REASON OF FAILURE: Something is critically broken on SQA Servers."
+                "REASON OF FAILURE: An unclassified error has occurred." +
+                this.exec_obj.getApp_url()
               );
-
-            if (this.exec_obj.getVerbose()) {
-              this.exec_obj.getLogger()
-                .addBuildLogEntry(
-                  ExecutionServicesImpl.getTimestamp() +
-                  "REQUEST BODY: " +
-                  payload.getPayload()
-                );
-              this.exec_obj.getLogger()
-                .addBuildLogEntry(
-                  ExecutionServicesImpl.getTimestamp() +
-                  "RESPONSE BODY: " +
-                  response.getResponseBody()
-                );
-            }
-
-            return false;
+            this.exec_obj.setExecStatus(ExecutionState.FAILED);
+            break;
         }
+
+        if (this.exec_obj.getVerbose()) {
+          this.exec_obj.setCalledAPI(this.build_api);
+          this.exec_obj.setReqBody(payload.getPayload());
+          this.exec_obj.setRespBody(response.getResponseBody());
+        }
+
+        return this.exec_obj.getExecStatus();
       }
     }
   }
 
   @Override
-  public String checkExecStatus() throws InterruptedException, IOException {
-    if (this.exec_obj == null) return "FAILED"; else {
+  public ExecutionState checkExecStatus() {
+    if (this.exec_obj == null) {
+      this.exec_obj.setExecStatus(ExecutionState.FAILED);
+      return this.exec_obj.getExecStatus();
+    } else {
       int failsafe_counter = 60;
       GenericPayload payload = GenericPayload.createStatusPayload(
         this.exec_obj
       );
 
       HttpResponse response = null;
-      try {
-        do {
+
+      do {
+        try {
           response =
             this.makeHttpPostRequest(this.status_api, payload.getPayload());
-
-          try {
-            JSONObject jsonResponse = (JSONObject) new JSONParser()
-              .parse(response.getResponseBody());
-            if (
-              Boolean.valueOf(jsonResponse.get("success").toString()) &&
-              !(
-                (
-                  (String) (
-                    (JSONObject) new JSONParser()
-                      .parse(
-                        (
-                          (JSONObject) new JSONParser()
-                            .parse(
-                              (
-                                (JSONObject) new JSONParser()
-                                  .parse(response.getResponseBody())
-                              ).get("data")
-                                .toString()
-                            )
-                        ).get("data")
-                          .toString()
-                      )
-                  ).get("execution")
-                ).equalsIgnoreCase("UNINITIALIZED")
-              )
-            ) {
-              break; // Break the loop if success is true
-            }
-          } catch (ParseException e) {
-            // Handle parsing exception
-            e.printStackTrace();
+        } catch (IOException IOE) {
+          this.exec_obj.getLogger()
+            .addBuildLogEntry(
+              ExecutionServices.getTimestamp() +
+              "EXECUTION STATUS: Execution Status could not be fetched."
+            );
+          if (this.exec_obj.getVerbose()) {
+            this.exec_obj.setCalledAPI(this.build_api);
+            this.exec_obj.setReqBody(payload.getPayload());
+            this.exec_obj.setRespBody("");
           }
+          this.exec_obj.setExecStatus(ExecutionState.INPROGRESS);
+          IOE.printStackTrace();
+        }
 
+        try {
+          JSONObject jsonResponse = (JSONObject) new JSONParser()
+            .parse(response.getResponseBody());
+          if (Boolean.valueOf(jsonResponse.get("success").toString())) break; // Break the loop if success is true
+        } catch (ParseException PE) {
+          this.exec_obj.getLogger()
+            .addBuildLogEntry(
+              ExecutionServices.getTimestamp() +
+              "EXECUTION STATUS: Execution Status could not be fetched."
+            );
+          if (this.exec_obj.getVerbose()) {
+            this.exec_obj.setCalledAPI(this.build_api);
+            this.exec_obj.setReqBody(payload.getPayload());
+            this.exec_obj.setRespBody("");
+          }
+          this.exec_obj.setExecStatus(ExecutionState.INPROGRESS);
+          PE.printStackTrace();
+        } catch (NullPointerException NPE) {
+          this.exec_obj.getLogger()
+            .addBuildLogEntry(
+              ExecutionServices.getTimestamp() +
+              "EXECUTION STATUS: Execution Status could not be fetched."
+            );
+          if (this.exec_obj.getVerbose()) {
+            this.exec_obj.setCalledAPI(this.build_api);
+            this.exec_obj.setReqBody(payload.getPayload());
+            this.exec_obj.setRespBody("");
+          }
+          this.exec_obj.setExecStatus(ExecutionState.INPROGRESS);
+          NPE.printStackTrace();
+        }
+
+        try {
           Thread.sleep(5000);
-          failsafe_counter--;
-        } while (failsafe_counter > 0);
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+        } catch (InterruptedException IE) {
+          this.exec_obj.getLogger()
+            .addBuildLogEntry(
+              ExecutionServices.getTimestamp() +
+              "EXECUTION STATUS: Execution Status could not be fetched."
+            );
 
-      if (response == null) return "FAILED"; else {
+          if (this.exec_obj.getVerbose()) {
+            this.exec_obj.setCalledAPI(this.build_api);
+            this.exec_obj.setReqBody(payload.getPayload());
+            this.exec_obj.setRespBody("");
+          }
+          this.exec_obj.setExecStatus(ExecutionState.INPROGRESS);
+          IE.printStackTrace();
+        }
+
+        failsafe_counter--;
+      } while (failsafe_counter > 0);
+
+      if (response == null) {
+        this.exec_obj.setExecStatus(ExecutionState.FAILED);
+        return this.exec_obj.getExecStatus();
+      } else {
         switch (response.getResponseCode()) {
           case 200:
             JSONObject dataObj;
@@ -480,32 +503,22 @@ public class ExecutionServicesImpl extends ExecutionServices {
             } catch (ParseException PE) {
               this.exec_obj.getLogger()
                 .addBuildLogEntry(
-                  String.format(
-                    ExecutionServices.getTimestamp(),
-                    "EXECUTION STATUS: Status code " +
-                    response.getResponseCode() +
-                    ", Execution Status fetched successfully."
-                  )
+                  ExecutionServices.getTimestamp() +
+                  "EXECUTION STATUS: Status code " +
+                  response.getResponseCode() +
+                  ", Execution Status fetched successfully."
                 );
 
               if (this.exec_obj.getVerbose()) {
-                this.exec_obj.getLogger()
-                  .addBuildLogEntry(
-                    ExecutionServices.getTimestamp() +
-                    "REQUEST BODY: " +
-                    payload.getPayload()
-                  );
-
-                this.exec_obj.getLogger()
-                  .addBuildLogEntry(
-                    ExecutionServices.getTimestamp() +
-                    "RESPONSE BODY: " +
-                    response.getResponseBody()
-                  );
+                this.exec_obj.setCalledAPI(this.build_api);
+                this.exec_obj.setReqBody(payload.getPayload());
+                this.exec_obj.setRespBody("");
               }
 
               PE.printStackTrace();
-              return "FAILED";
+
+              this.exec_obj.setExecStatus(ExecutionState.INPROGRESS);
+              return this.exec_obj.getExecStatus();
             }
 
             this.exec_obj.setTcsFailed(0);
@@ -545,36 +558,19 @@ public class ExecutionServicesImpl extends ExecutionServices {
             this.exec_obj.setUserName((String) dataObj.get("username"));
             this.exec_obj.setFailPercent();
             this.exec_obj.setExecPercent();
-
-            this.exec_obj.setExecStatus((String) dataObj.get("execution"));
-
-            this.exec_obj.getLogger()
-              .addBuildLogEntry(
-                String.format(
-                  ExecutionServices.getTimestamp(),
-                  "EXECUTION STATUS: Status code " +
-                  response.getResponseCode() +
-                  ", Execution Status fetched successfully."
+            // this.exec_obj.getLogger()
+            //   .addBuildLogEntry(
+            //     ExecutionServices.getTimestamp() +
+            //     "EXECUTION STATUS: Status code " +
+            //     response.getResponseCode() +
+            //     ", Execution Status fetched successfully."
+            //   );
+            this.exec_obj.setExecStatus(
+                ExecutionState.setState(
+                  String.valueOf(dataObj.get("execution"))
                 )
               );
-
-            if (this.exec_obj.getVerbose()) {
-              this.exec_obj.getLogger()
-                .addBuildLogEntry(
-                  ExecutionServices.getTimestamp() +
-                  "REQUEST BODY: " +
-                  payload.getPayload()
-                );
-
-              this.exec_obj.getLogger()
-                .addBuildLogEntry(
-                  ExecutionServices.getTimestamp() +
-                  "RESPONSE BODY: " +
-                  response.getResponseBody()
-                );
-            }
-
-            return this.exec_obj.getExecStatus();
+            break;
           case 400:
             this.exec_obj.getLogger()
               .addBuildLogEntry(
@@ -590,25 +586,7 @@ public class ExecutionServicesImpl extends ExecutionServices {
                 "REASON OF FAILURE: Logout and login again, Invalid Execution token for the specified env: " +
                 this.exec_obj.getApp_url()
               );
-
-            if (this.exec_obj.getVerbose()) {
-              this.exec_obj.getLogger()
-                .addBuildLogEntry(
-                  ExecutionServicesImpl.getTimestamp() +
-                  "REQUEST BODY: " +
-                  payload.getPayload()
-                );
-              this.exec_obj.getLogger()
-                .addBuildLogEntry(
-                  ExecutionServicesImpl.getTimestamp() +
-                  "RESPONSE BODY: " +
-                  response.getResponseBody()
-                );
-            }
-
-            this.exec_obj.setExecStatus("FAILED");
-
-            return "FAILED";
+            break;
           case 403:
             this.exec_obj.getLogger()
               .addBuildLogEntry(
@@ -624,25 +602,7 @@ public class ExecutionServicesImpl extends ExecutionServices {
                 "REASON OF FAILURE: Logout and login again, Invalid Authorization token for the specified env: " +
                 this.exec_obj.getApp_url()
               );
-
-            if (this.exec_obj.getVerbose()) {
-              this.exec_obj.getLogger()
-                .addBuildLogEntry(
-                  ExecutionServicesImpl.getTimestamp() +
-                  "REQUEST BODY: " +
-                  payload.getPayload()
-                );
-              this.exec_obj.getLogger()
-                .addBuildLogEntry(
-                  ExecutionServicesImpl.getTimestamp() +
-                  "RESPONSE BODY: " +
-                  response.getResponseBody()
-                );
-            }
-
-            this.exec_obj.setExecStatus("FAILED");
-
-            return "FAILED";
+            break;
           case 500:
             this.exec_obj.getLogger()
               .addBuildLogEntry(
@@ -658,25 +618,7 @@ public class ExecutionServicesImpl extends ExecutionServices {
                 "REASON OF FAILURE: The cloud server or the local machine is unavailable for the specified env: " +
                 this.exec_obj.getApp_url()
               );
-
-            if (this.exec_obj.getVerbose()) {
-              this.exec_obj.getLogger()
-                .addBuildLogEntry(
-                  ExecutionServicesImpl.getTimestamp() +
-                  "REQUEST BODY: " +
-                  payload.getPayload()
-                );
-              this.exec_obj.getLogger()
-                .addBuildLogEntry(
-                  ExecutionServicesImpl.getTimestamp() +
-                  "RESPONSE BODY: " +
-                  response.getResponseBody()
-                );
-            }
-
-            this.exec_obj.setExecStatus("FAILED");
-
-            return "FAILED";
+            break;
           case 504:
             this.exec_obj.getLogger()
               .addBuildLogEntry(
@@ -685,32 +627,13 @@ public class ExecutionServicesImpl extends ExecutionServices {
                 response.getResponseCode() +
                 ", Execution Status could not be fetched."
               );
-
             this.exec_obj.getLogger()
               .addBuildLogEntry(
                 ExecutionServicesImpl.getTimestamp() +
                 "REASON OF FAILURE: The server gateway timed-out for the specified env: " +
                 this.exec_obj.getApp_url()
               );
-
-            if (this.exec_obj.getVerbose()) {
-              this.exec_obj.getLogger()
-                .addBuildLogEntry(
-                  ExecutionServicesImpl.getTimestamp() +
-                  "REQUEST BODY: " +
-                  payload.getPayload()
-                );
-              this.exec_obj.getLogger()
-                .addBuildLogEntry(
-                  ExecutionServicesImpl.getTimestamp() +
-                  "RESPONSE BODY: " +
-                  response.getResponseBody()
-                );
-            }
-
-            this.exec_obj.setExecStatus("FAILED");
-
-            return "FAILED";
+            break;
           default:
             this.exec_obj.getLogger()
               .addBuildLogEntry(
@@ -719,44 +642,45 @@ public class ExecutionServicesImpl extends ExecutionServices {
                 response.getResponseCode() +
                 ", Execution Status could not be fetched."
               );
-
             this.exec_obj.getLogger()
               .addBuildLogEntry(
                 ExecutionServicesImpl.getTimestamp() +
                 "REASON OF FAILURE: An unclassified error has occurred." +
                 this.exec_obj.getApp_url()
               );
-
-            if (this.exec_obj.getVerbose()) {
-              this.exec_obj.getLogger()
-                .addBuildLogEntry(
-                  ExecutionServicesImpl.getTimestamp() +
-                  "REQUEST BODY: " +
-                  payload.getPayload()
-                );
-              this.exec_obj.getLogger()
-                .addBuildLogEntry(
-                  ExecutionServicesImpl.getTimestamp() +
-                  "RESPONSE BODY: " +
-                  response.getResponseBody()
-                );
-            }
-
-            this.exec_obj.setExecStatus("FAILED");
-
-            return "FAILED";
+            break;
         }
+
+        if (this.exec_obj.getVerbose()) {
+          this.exec_obj.setCalledAPI(this.build_api);
+          this.exec_obj.setReqBody(payload.getPayload());
+          this.exec_obj.setRespBody(response.getResponseBody());
+        }
+
+        return this.exec_obj.getExecStatus();
       }
     }
   }
 
   @Override
-  public boolean killExec() throws IOException {
+  public boolean killExec() {
     if (this.exec_obj == null) return false; else {
       GenericPayload payload = GenericPayload.createKillPayload(this.exec_obj);
-      HttpResponse response =
-        this.makeHttpPostRequest(this.kill_api, payload.getPayload());
+      HttpResponse response = null;
+      try {
+        response =
+          this.makeHttpPostRequest(this.kill_api, payload.getPayload());
+      } catch (IOException e) {
+        this.exec_obj.getLogger()
+          .addBuildLogEntry(
+            ExecutionServicesImpl.getTimestamp() +
+            "EXECUTION STATUS: Failed to kill execiution."
+          );
+        e.printStackTrace();
+      }
+
       if (response == null) return false; else {
+        boolean ret_flag = false;
         switch (response.getResponseCode()) {
           case 200:
             this.exec_obj.getLogger()
@@ -766,8 +690,8 @@ public class ExecutionServicesImpl extends ExecutionServices {
                 response.getResponseCode() +
                 ", Execution Killed Successfully."
               );
-
-            return true;
+            ret_flag = true;
+            break;
           case 400:
             this.exec_obj.getLogger()
               .addBuildLogEntry(
@@ -776,17 +700,13 @@ public class ExecutionServicesImpl extends ExecutionServices {
                 response.getResponseCode() +
                 ", Failed to kill execiution."
               );
-
             this.exec_obj.getLogger()
               .addBuildLogEntry(
                 ExecutionServicesImpl.getTimestamp() +
                 "REASON OF FAILURE: Logout and login again, Invalid Authorization token for the specified env: " +
                 this.exec_obj.getApp_url()
               );
-
-            this.exec_obj.setExecStatus("FAILED");
-
-            return false;
+            break;
           case 403:
             this.exec_obj.getLogger()
               .addBuildLogEntry(
@@ -795,17 +715,13 @@ public class ExecutionServicesImpl extends ExecutionServices {
                 response.getResponseCode() +
                 ", Failed to kill execiution."
               );
-
             this.exec_obj.getLogger()
               .addBuildLogEntry(
                 ExecutionServicesImpl.getTimestamp() +
                 "REASON OF FAILURE: Logout and login again, Invalid Authorization token for the specified env: " +
                 this.exec_obj.getApp_url()
               );
-
-            this.exec_obj.setExecStatus("FAILED");
-
-            return false;
+            break;
           case 500:
             this.exec_obj.getLogger()
               .addBuildLogEntry(
@@ -821,10 +737,7 @@ public class ExecutionServicesImpl extends ExecutionServices {
                 "REASON OF FAILURE: The Pipeline Token is invalid for the specified env: " +
                 this.exec_obj.getApp_url()
               );
-
-            this.exec_obj.setExecStatus("FAILED");
-
-            return false;
+            break;
           case 504:
             this.exec_obj.getLogger()
               .addBuildLogEntry(
@@ -840,10 +753,7 @@ public class ExecutionServicesImpl extends ExecutionServices {
                 "REASON OF FAILURE: The server gateway timed-out for the specified env: " +
                 this.exec_obj.getApp_url()
               );
-
-            this.exec_obj.setExecStatus("FAILED");
-
-            return false;
+            break;
           default:
             this.exec_obj.getLogger()
               .addBuildLogEntry(
@@ -852,18 +762,22 @@ public class ExecutionServicesImpl extends ExecutionServices {
                 response.getResponseCode() +
                 ", Failed to kill execiution."
               );
-
             this.exec_obj.getLogger()
               .addBuildLogEntry(
                 ExecutionServicesImpl.getTimestamp() +
                 "REASON OF FAILURE: An unclassified error has occurred." +
                 this.exec_obj.getApp_url()
               );
-
-            this.exec_obj.setExecStatus("FAILED");
-
-            return false;
+            break;
         }
+
+        if (this.exec_obj.getVerbose()) {
+          this.exec_obj.setCalledAPI(this.build_api);
+          this.exec_obj.setReqBody(payload.getPayload());
+          this.exec_obj.setRespBody(response.getResponseBody());
+        }
+
+        return ret_flag;
       }
     }
   }

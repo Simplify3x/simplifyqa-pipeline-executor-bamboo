@@ -9,7 +9,6 @@ import com.atlassian.sal.api.message.I18nResolver;
 import com.simplifyqa.bamboo.plugins.impl.ExecutionServicesImpl;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Properties;
 import org.apache.commons.lang.StringUtils;
