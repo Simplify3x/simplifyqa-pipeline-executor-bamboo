@@ -674,7 +674,7 @@ public class ExecutionServicesImpl extends ExecutionServices {
         this.exec_obj.getLogger()
           .addBuildLogEntry(
             ExecutionServicesImpl.getTimestamp() +
-            "EXECUTION STATUS: Failed to kill execiution."
+            "EXECUTION STATUS: Failed to kill execution."
           );
         e.printStackTrace();
       }
@@ -698,7 +698,7 @@ public class ExecutionServicesImpl extends ExecutionServices {
                 ExecutionServicesImpl.getTimestamp() +
                 "EXECUTION STATUS: Status code " +
                 response.getResponseCode() +
-                ", Failed to kill execiution."
+                ", Failed to kill execution."
               );
             this.exec_obj.getLogger()
               .addBuildLogEntry(
@@ -713,7 +713,7 @@ public class ExecutionServicesImpl extends ExecutionServices {
                 ExecutionServicesImpl.getTimestamp() +
                 "EXECUTION STATUS: Status code " +
                 response.getResponseCode() +
-                ", Failed to kill execiution."
+                ", Failed to kill execution."
               );
             this.exec_obj.getLogger()
               .addBuildLogEntry(
@@ -728,7 +728,7 @@ public class ExecutionServicesImpl extends ExecutionServices {
                 ExecutionServicesImpl.getTimestamp() +
                 "EXECUTION STATUS: Status code " +
                 response.getResponseCode() +
-                ", Failed to kill execiution."
+                ", Failed to kill execution."
               );
 
             this.exec_obj.getLogger()
@@ -744,7 +744,7 @@ public class ExecutionServicesImpl extends ExecutionServices {
                 ExecutionServicesImpl.getTimestamp() +
                 "EXECUTION STATUS: Status code " +
                 response.getResponseCode() +
-                ", Failed to kill execiution."
+                ", Failed to kill execution."
               );
 
             this.exec_obj.getLogger()
@@ -760,7 +760,7 @@ public class ExecutionServicesImpl extends ExecutionServices {
                 ExecutionServicesImpl.getTimestamp() +
                 "EXECUTION STATUS: Status code " +
                 response.getResponseCode() +
-                ", Failed to kill execiution."
+                ", Failed to kill execution."
               );
             this.exec_obj.getLogger()
               .addBuildLogEntry(
@@ -772,7 +772,9 @@ public class ExecutionServicesImpl extends ExecutionServices {
         }
 
         if (this.exec_obj.getVerbose()) {
-          this.exec_obj.setCalledAPI(this.build_api);
+          this.exec_obj.getLogger()
+            .addBuildLogEntry("KILL API: " + this.kill_api);
+          this.exec_obj.setCalledAPI(this.kill_api);
           this.exec_obj.setReqBody(payload.getPayload());
           this.exec_obj.setRespBody(response.getResponseBody());
         }

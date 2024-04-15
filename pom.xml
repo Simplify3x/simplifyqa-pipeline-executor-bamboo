@@ -7,7 +7,7 @@
 
     <groupId>com.simplifyqa.bamboo.plugins</groupId>
     <artifactId>simplifyqa-pipeline-executor</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
 
     <organization>
         <name>Simplify3x</name>

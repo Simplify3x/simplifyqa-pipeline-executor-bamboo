@@ -167,6 +167,7 @@ public class ExecutionTask implements TaskType {
       exec_dto.printStats();
 
       if (exec_obj.getThreshold() <= exec_obj.getFailPercent()) {
+        exec_obj.setExecStatus(ExecutionState.FAILED);
         taskContext
           .getBuildLogger()
           .addBuildLogEntry(
@@ -185,6 +186,7 @@ public class ExecutionTask implements TaskType {
             "EXECUTION STATUS: FAILED to explicitly kill the execution!\n"
           );
       } else {
+        exec_obj.setExecStatus(ExecutionState.COMPLETED);
         taskContext
           .getBuildLogger()
           .addBuildLogEntry(
@@ -201,6 +203,7 @@ public class ExecutionTask implements TaskType {
           "\n"
         );
     }
+
     if (exec_obj.getVerbose()) {
       taskContext
         .getBuildLogger()

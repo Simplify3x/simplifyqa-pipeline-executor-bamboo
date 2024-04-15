@@ -123,6 +123,11 @@ public class ExecutionTaskConfigurator extends AbstractTaskConfigurator {
       );
     }
 
+    if (app_url.endsWith("/")) errorCollection.addError(
+      ExecutionConstants.APP_URL_FIELD,
+      ExecutionConstants.WARN_INVALID_APP_URL
+    );
+
     try {
       if (
         new ExecutionServicesImpl()
@@ -178,9 +183,9 @@ public class ExecutionTaskConfigurator extends AbstractTaskConfigurator {
       ExecutionConstants.SQA_BASE_URL
     );
 
-    context.put(ExecutionConstants.VERBOSE_FIELD, true);
+    context.put(ExecutionConstants.VERBOSE_FIELD, false);
 
-    context.put(ExecutionConstants.ADVANCED_CHECK_FIELD, true);
+    context.put(ExecutionConstants.ADVANCED_CHECK_FIELD, false);
 
     context.put(ExecutionConstants.THRESHOLD_FIELD, 100.00);
   }
