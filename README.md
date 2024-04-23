@@ -1,4 +1,4 @@
-# simplifyqa-pipeline-executor
+# simplifyqa-pipeline-executor-bamboo
 SimplifyQA Pipeline Executor plugin for bamboo
 
 You have successfully created an Atlassian Plugin!
