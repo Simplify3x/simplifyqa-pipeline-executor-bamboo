@@ -143,12 +143,11 @@ public class ExecutionTask implements TaskType {
 
       while (
         (exec_dto.checkExecStatus() == ExecutionState.INPROGRESS) &&
-        (exec_obj.getThreshold() > exec_obj.getFailPercent())
+        (exec_obj.getThreshold() >= exec_obj.getFailPercent())
       ) {
         if (executed < exec_obj.getExecutedTcs()) {
           exec_dto.printStats();
           executed++;
-
           if (exec_obj.getThreshold() <= exec_obj.getFailPercent()) {
             taskContext
               .getBuildLogger()

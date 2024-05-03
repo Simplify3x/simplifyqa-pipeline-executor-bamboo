@@ -48,9 +48,7 @@ public class GenericPayload {
       execution.getExecId() +
       ",\"userId\":" +
       execution.getUserId() +
-      ",\"userName\":\"" +
-      execution.getUserName() +
-      "\"}"
+      "}"
     );
   }
 }

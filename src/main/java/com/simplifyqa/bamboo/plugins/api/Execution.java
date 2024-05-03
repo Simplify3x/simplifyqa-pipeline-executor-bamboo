@@ -2,7 +2,6 @@ package com.simplifyqa.bamboo.plugins.api;
 
 import com.atlassian.bamboo.build.logger.BuildLogger;
 import java.io.IOException;
-import org.apache.activemq.filter.function.regexMatchFunction;
 import org.json.simple.JSONArray;
 
 // Execution Services Object

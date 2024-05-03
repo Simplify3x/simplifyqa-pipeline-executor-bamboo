@@ -11,7 +11,6 @@ import org.apache.http.client.ClientProtocolException;
 public abstract class ExecutionServices {
 
   protected Execution exec_obj;
-
   protected String build_api = "/jenkinsSuiteExecution";
   protected String status_api = "/getJenkinsExecStatus";
   protected String kill_api = "/getsession/killExecutionReports";

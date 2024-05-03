@@ -70,6 +70,7 @@ public class ExecutionServicesImpl extends ExecutionServices {
       connection = (HttpURLConnection) requestUrl.openConnection();
       connection.setRequestMethod("POST");
       connection.setRequestProperty("Content-Type", "application/json");
+      connection.setRequestProperty("Authorization" ,this.exec_obj.getAuthKey());
       connection.setConnectTimeout(CONNECTION_TIMEOUT);
       connection.setReadTimeout(CONNECTION_TIMEOUT);
       connection.setDoOutput(true);
@@ -148,8 +149,7 @@ public class ExecutionServicesImpl extends ExecutionServices {
         exec_obj.getThreshold() +
         " % i.e. " +
         (
-          (exec_obj.getThreshold() / 100.00) *
-          Double.valueOf(exec_obj.getTotalTcs()).intValue() +
+          exec_obj.getTcsFailed() +
           " of " +
           exec_obj.getTotalTcs() +
           " testcase(s))\n"
@@ -668,6 +668,7 @@ public class ExecutionServicesImpl extends ExecutionServices {
       GenericPayload payload = GenericPayload.createKillPayload(this.exec_obj);
       HttpResponse response = null;
       try {
+
         response =
           this.makeHttpPostRequest(this.kill_api, payload.getPayload());
       } catch (IOException e) {
@@ -675,7 +676,8 @@ public class ExecutionServicesImpl extends ExecutionServices {
           .addBuildLogEntry(
             ExecutionServicesImpl.getTimestamp() +
             "EXECUTION STATUS: Failed to kill execution."
-          );
+            );
+          
         e.printStackTrace();
       }
 
@@ -775,6 +777,7 @@ public class ExecutionServicesImpl extends ExecutionServices {
           this.exec_obj.getLogger()
             .addBuildLogEntry("KILL API: " + this.kill_api);
           this.exec_obj.setCalledAPI(this.kill_api);
+        
           this.exec_obj.setReqBody(payload.getPayload());
           this.exec_obj.setRespBody(response.getResponseBody());
         }
