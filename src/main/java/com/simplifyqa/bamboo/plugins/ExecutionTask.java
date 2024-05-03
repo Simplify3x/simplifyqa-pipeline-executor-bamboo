@@ -61,6 +61,10 @@ public class ExecutionTask implements TaskType {
         );
     } catch (NumberFormatException e) {
       taskContext
+          .getBuildLogger()
+          .addBuildLogEntry(
+              "");
+      taskContext
         .getBuildLogger()
         .addBuildLogEntry(
           ExecutionServicesImpl.getTimestamp() + "EXECUTION FAILED!!"
@@ -92,6 +96,10 @@ public class ExecutionTask implements TaskType {
       return TaskState.FAILED;
     } catch (IOException e) {
       taskContext
+          .getBuildLogger()
+          .addBuildLogEntry(
+              "");
+      taskContext
         .getBuildLogger()
         .addBuildLogEntry(
           ExecutionServicesImpl.getTimestamp() + "EXECUTION FAILED!!"
@@ -118,6 +126,10 @@ public class ExecutionTask implements TaskType {
     ExecutionState exec_state = exec_dto.startExec();
 
     if (exec_state == ExecutionState.FAILED) {
+      taskContext
+          .getBuildLogger()
+          .addBuildLogEntry(
+              "");
       taskContext
         .getBuildLogger()
         .addBuildLogEntry(
@@ -168,6 +180,10 @@ public class ExecutionTask implements TaskType {
       if (exec_obj.getThreshold() <= exec_obj.getFailPercent()) {
         exec_obj.setExecStatus(ExecutionState.FAILED);
         taskContext
+            .getBuildLogger()
+            .addBuildLogEntry(
+                "");
+        taskContext
           .getBuildLogger()
           .addBuildLogEntry(
             ExecutionServicesImpl.getTimestamp() + "EXECUTION FAILED!!"
@@ -187,6 +203,10 @@ public class ExecutionTask implements TaskType {
       } else {
         exec_obj.setExecStatus(ExecutionState.COMPLETED);
         taskContext
+            .getBuildLogger()
+            .addBuildLogEntry(
+                "");
+        taskContext
           .getBuildLogger()
           .addBuildLogEntry(
             ExecutionServicesImpl.getTimestamp() + "EXECUTION PASSED!!"
@@ -205,29 +225,35 @@ public class ExecutionTask implements TaskType {
 
     if (exec_obj.getVerbose()) {
       taskContext
-        .getBuildLogger()
-        .addBuildLogEntry(
-          ExecutionServices.getTimestamp() +
-          "API CALLED: " +
-          exec_obj.getCalledAPI()
-        );
+          .getBuildLogger()
+          .addBuildLogEntry(
+              "");
       taskContext
-        .getBuildLogger()
-        .addBuildLogEntry(
-          ExecutionServicesImpl.getTimestamp() +
-          "REQUEST BODY: " +
-          exec_obj.getReqBody()
-        );
+          .getBuildLogger()
+          .addBuildLogEntry(
+              ExecutionServices.getTimestamp() +
+                  "API CALLED: " +
+                  exec_obj.getCalledAPI());
       taskContext
-        .getBuildLogger()
-        .addBuildLogEntry(
-          ExecutionServicesImpl.getTimestamp() +
-          "RESPONSE BODY: " +
-          exec_obj.getRespBody()
-        );
+          .getBuildLogger()
+          .addBuildLogEntry(ExecutionServices.getTimestamp() +
+              "REQUEST BODY: " +
+              exec_obj.getReqBody());
+      taskContext
+          .getBuildLogger()
+          .addBuildLogEntry(
+              ExecutionServicesImpl.getTimestamp() +
+                  "RESPONSE BODY: " +
+                  exec_obj.getRespBody());
     }
+    taskContext
+        .getBuildLogger()
+        .addBuildLogEntry(
+            "");
     String asterisks = "";
-    for (int i = 0; i < 51; i++) asterisks += "*";
+    for (int i = 0; i < 51; i++)
+      asterisks += "*";
+    
     taskContext
       .getBuildLogger()
       .addBuildLogEntry(
@@ -236,7 +262,11 @@ public class ExecutionTask implements TaskType {
         "EOF" +
         asterisks +
         "\n"
-      );
+        );
+      taskContext
+        .getBuildLogger()
+        .addBuildLogEntry(
+            "");
 
     if (
       exec_obj.getExecStatus() == ExecutionState.FAILED
